@@ -65,26 +65,23 @@ void LightHttpThreadWorker::run() {
                     break;
                 }
                 if (n == 0) {
-                //close(nSockFd);
-                break;
-                }
-                msg[n]=0;
-                //send(newsockfd,msg,n,0);
-                sRequest = std::string(msg);
-                // stop reading
-                int len = sRequest.length();
-                // TODO  read body
-                if (len > 4 && ((sRequest[len-1] == '\n' && sRequest[len-2] == '\r' && sRequest[len-3] == '\n' && sRequest[len-4] == '\r')
-                        || (sRequest[len-1] == '\n' && sRequest[len-2] == '\n'))
-                ) {
-                    // std::cout << nSockFd  << ": end of request\n";
+                    //close(nSockFd);
                     break;
                 }
-                // usleep(100);
+                Log::info(TAG, "Readed " + std::to_string(n) + " bytes...");
+                msg[n] = 0;
+                //send(newsockfd,msg,n,0);
+                sRequest = std::string(msg);
+
+                std::string sRecv(msg);
+                pInfo->appendRecieveRequest(sRecv);
+
+                if (pInfo->isEnoughAppendReceived()) {
+                    break;
+                }
+                usleep(100);
             }
-            Log::info(TAG, "Request: \n" + sRequest);
-            pInfo->parseRequest(sRequest);
-            // std::cout << nSockFd  << ": request >>>> \n" << sRequest << "\n <<<<< request\n";
+            Log::info(TAG, "\nRequest: \n>>>\n" + sRequest + "\n<<<");
             
             if (pInfo->requestType() == "OPTIONS") {
                 pResponse->ok().sendOptions("OPTIONS, GET, POST");

@@ -24,25 +24,37 @@ class LightHttpRequest {
 		~LightHttpRequest(){};
 
 		int sockFd();
-		void parseRequest(const std::string &sRequest);
-
+		void appendRecieveRequest(const std::string &sRequestPart);
+		bool isEnoughAppendReceived();
 		
 		std::string address();
 		std::string requestType();
 		std::string requestPath();
+		std::string requestBody();
 		std::string requestHttpVersion();
 		std::map<std::string,std::string> &requestQueryParams();
 
 	private:
 		std::string TAG;
 
+		void parseFirstLine(const std::string &sHeader);
+
+		enum EnumParserState {
+			START,
+			BODY,
+			ENDED
+		};
 		int m_nSockFd;
-		bool m_bClosed; 
+		bool m_bClosed;
+		EnumParserState m_nParserState;
+		std::vector<std::string> m_vHeaders;
+		int m_nContentLength;
+		std::string m_sRequest;
 		std::string m_sAddress;
 		std::string m_sRequestType;
 		std::string m_sRequestPath;
 		std::string m_sRequestBody;
-		std::map<std::string,std::string> m_sRequestQueryParams;
+		std::map<std::string,std::string> m_sRequestQueryParams; // wrong use map for params
 		std::string m_sRequestHttpVersion;
 
 		std::string m_sResponseCacheControl;

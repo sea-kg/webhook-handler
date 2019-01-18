@@ -142,6 +142,8 @@ void LightHttpResponse::sendText(const std::string &sBody) {
 		return;
 	}
 	m_bClosed = true;
+	
+	Log::info(TAG, "\nResponse: \n>>>\n" + sResponse + "\n<<<");
 
 	send(m_nSockFd, sResponse.c_str(), sResponse.length(),0);
 	close(m_nSockFd);
@@ -166,6 +168,8 @@ void LightHttpResponse::sendOptions(const std::string &sOptions) {
 		return;
 	}
 	m_bClosed = true;
+	
+	Log::info(TAG, "\nResponse: \n>>>\n" + sResponse + "\n<<<");
 
 	send(m_nSockFd, sResponse.c_str(), sResponse.length(),0);
 	close(m_nSockFd);

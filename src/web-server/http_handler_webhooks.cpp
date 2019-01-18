@@ -44,6 +44,7 @@ bool HttpHandlerWebhooks::handle(const std::string &sWorkerId, LightHttpRequest 
     std::string _tag = TAG + "-" + sWorkerId;
     LightHttpResponse response(pRequest->sockFd());
     std::string sPath = pRequest->requestPath();
+    
     std::map<std::string,std::string>::iterator it;
     it = m_mapWebhooksPaths.find(sPath);
     if (it != m_mapWebhooksPaths.end()) {
