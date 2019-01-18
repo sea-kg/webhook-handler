@@ -2,6 +2,7 @@
 #include <logger.h>
 #include <light_http_handlers.h>
 #include <light_http_response.h>
+#include <thread>
 
 // ----------------------------------------------------------------------
 
@@ -79,7 +80,7 @@ void LightHttpThreadWorker::run() {
                 if (pInfo->isEnoughAppendReceived()) {
                     break;
                 }
-                usleep(100);
+                std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
             Log::info(TAG, "\nRequest: \n>>>\n" + sRequest + "\n<<<");
             
@@ -101,7 +102,7 @@ void LightHttpThreadWorker::run() {
 
 		if (!bExists) {
             if (m_bStop) return;
-			usleep(100);
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
             if (m_bStop) return;
 		}
 	}
