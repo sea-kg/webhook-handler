@@ -1,0 +1,17 @@
+[Unit]
+Description=MECD Server
+After=syslog.target
+After=network.target
+
+[Service]
+WorkingDirectory=/opt/mecd
+User=root
+Group=root
+ExecStart=/bin/sh -c '/usr/bin/mecd start'
+
+TimeoutSec=30
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+Alias=mecd.service

@@ -63,7 +63,7 @@ void Log::logRotate_updateFilename() {
     // rotate log if started now or if time left more then 10 min
     if (g_LOG_START_TIME == 0 || t - g_LOG_START_TIME > 600) {
         g_LOG_START_TIME = t;
-        g_LOG_FILE = g_LOG_DIR + "/jury-ad_" + TS::formatTimeForFilename(g_LOG_START_TIME) + ".log";
+        g_LOG_FILE = g_LOG_DIR + "/mecd_" + TS::formatTimeForFilename(g_LOG_START_TIME) + ".log";
     }
 }
 
