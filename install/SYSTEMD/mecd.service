@@ -7,7 +7,7 @@ After=network.target
 WorkingDirectory=/opt/mecd
 User=root
 Group=root
-ExecStart=/bin/sh -c '/usr/bin/mecd start'
+ExecStart=/bin/sh -c '/usr/bin/mecd --dir . start'
 
 TimeoutSec=30
 Restart=always
