@@ -44,6 +44,7 @@ class LightHttpResponse {
         void sendText(const std::string &sBody);
         void sendEmpty();
         void sendOptions(const std::string &sOptions);
+        void sendDontUnderstand();
 
     private:
         std::string prepareHeaders(int nLength);

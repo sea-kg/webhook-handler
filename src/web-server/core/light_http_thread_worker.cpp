@@ -47,21 +47,39 @@ void LightHttpThreadWorker::run() {
         // TODO refactor
 		if (bExists) {
             int nSockFd = pInfo->sockFd();
+
+            // set timeout options
+            struct timeval timeout;
+            timeout.tv_sec = 1; // 1 seconds timeout
+            timeout.tv_usec = 0;
+            setsockopt(nSockFd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
+
+            struct sockaddr_in addr;
+            socklen_t addr_size = sizeof(struct sockaddr_in);
+            int res = getpeername(nSockFd, (struct sockaddr *)&addr, &addr_size);
+            char *clientip = new char[20];
+            memset(clientip, 0, 20);
+            strcpy(clientip, inet_ntoa(addr.sin_addr));
+            Log::info(TAG, "IP-address: " + std::string(clientip));
+
             LightHttpResponse *pResponse = new LightHttpResponse(nSockFd);
             int n;
             // int newsockfd = (long)arg;
             char msg[nMaxPackageSize];
-            memset(msg, 0, nMaxPackageSize);
 
             std::string sRequest;
             
             // std::cout << nSockFd  << ": address = " << info->address() << "\n";
             // read data from socket
+            bool bErrorRead = false;
             while(1) { // problem can be here
                 // std::cout << nSockFd  << ": wait recv...\n";
+                memset(msg, 0, nMaxPackageSize);
+
                 n = recv(nSockFd, msg, nMaxPackageSize, 0);
                 // std::cout << "N: " << n << std::endl;
                 if (n == -1) {
+                    bErrorRead = true;
                     std::cout << nSockFd  << ": error read... \n";
                     break;
                 }
@@ -83,8 +101,10 @@ void LightHttpThreadWorker::run() {
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
             Log::info(TAG, "\nRequest: \n>>>\n" + sRequest + "\n<<<");
-            
-            if (pInfo->requestType() == "OPTIONS") {
+
+            if (bErrorRead) {
+                pResponse->sendDontUnderstand();
+            } else if (pInfo->requestType() == "OPTIONS") {
                 pResponse->ok().sendOptions("OPTIONS, GET, POST");
             } else if (pInfo->requestType() != "GET" && pInfo->requestType() != "POST") {
                 pResponse->notImplemented().sendEmpty();

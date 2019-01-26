@@ -176,3 +176,23 @@ void LightHttpResponse::sendOptions(const std::string &sOptions) {
 }
 
 // ----------------------------------------------------------------------
+
+void LightHttpResponse::sendDontUnderstand() {
+    std::string sResponse = "I don't understand you! Are you just a machine? Or maybe hacker?";
+	
+	if(m_bClosed) {
+		Log::warn(TAG, "Already sended response");
+		return;
+	}
+	m_bClosed = true;
+	
+	Log::info(TAG, "\nResponse: \n>>>\n" + sResponse + "\n<<<");
+
+	send(m_nSockFd, sResponse.c_str(), sResponse.length(),0);
+	close(m_nSockFd);
+}
+
+
+
+
+// ----------------------------------------------------------------------
