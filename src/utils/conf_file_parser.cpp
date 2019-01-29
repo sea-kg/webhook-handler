@@ -5,6 +5,9 @@
 #include <fstream>
 #include <logger.h>
 #include <regex>        // regex, sregex_token_iterator
+#include <string>
+#include <sstream>
+#include <iostream>
 
 ConfFileParser::ConfFileParser(const std::string &sConfigFile) {
     m_sConfigFile = sConfigFile;
