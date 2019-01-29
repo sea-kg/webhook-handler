@@ -160,7 +160,7 @@ void LightHttpResponse::sendEmpty() {
 void LightHttpResponse::sendOptions(const std::string &sOptions) {
     m_sDataType = "text/html";
 	std::string sResponse = prepareHeaders(0)
-        + "Access-Control-Allow-Methods: " + sOptions;
+        + "Access-Control-Allow-Methods: " + sOptions
 		+ "\r\n\r\n";
 	
 	if(m_bClosed) {
