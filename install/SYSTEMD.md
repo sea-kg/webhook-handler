@@ -4,13 +4,14 @@
 
 ```
 $ sudo cp ./SYSTEMD/mecd.service  /etc/systemd/system/mecd.service
+$ sudo cp ../mecd /usr/bin/
 ```
 
 ## Create directories
 
 ```
 $ sudo mkdir /opt/mecd
-$ sudo cp -rf data/* /opt/mecd
+$ sudo cp -rf ../data/* /opt/mecd
 ```
 
 ## Reload and restart
