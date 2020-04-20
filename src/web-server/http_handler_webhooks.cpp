@@ -9,7 +9,6 @@
 #include <light_http_request.h>
 #include <light_http_response.h>
 #include <ts.h>
-#include <fs.h>
 #include <str.h>
 
 // ----------------------------------------------------------------------

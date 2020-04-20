@@ -9,7 +9,6 @@
 #include <regex>        // regex, sregex_token_iterator
 #include <stdio.h>
 #include <math.h>
-#include <fs.h>
 #include <ts.h>
 #include <str.h>
 #include <light_http_response.h>

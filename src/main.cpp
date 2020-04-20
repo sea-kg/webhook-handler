@@ -20,8 +20,8 @@
 #include <help_parse_args.h>
 #include <unistd.h>
 #include <limits.h>
-#include <fs.h>
 #include <deque_webhooks.h>
+#include <wsjcpp_core.h>
 
 LightHttpServer g_httpServer;
 std::vector<ScriptsThread *> g_vThreads;
@@ -67,13 +67,13 @@ int main(int argc, char* argv[]) {
         // TODO check directory existing and apply dir
     }
 
-    if (!FS::dirExists(sWorkspace)) {
+    if (!WsjcppCore::dirExists(sWorkspace)) {
         std::cout << "Error: Folder " << sWorkspace << " does not exists \n";
         return -1;
     }
 
     std::string sLogDir = sWorkspace + "/logs";
-    if (!FS::dirExists(sLogDir)) {
+    if (!WsjcppCore::dirExists(sLogDir)) {
         std::cout << "Error: Folder " << sLogDir << " does not exists \n";
         return -1;
     }

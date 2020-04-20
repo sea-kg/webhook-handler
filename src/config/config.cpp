@@ -7,8 +7,8 @@
 #include <iostream>
 #include <sstream>
 #include <conf_file_parser.h>
-#include <fs.h>
-
+#include <wsjcpp_core.h>
+ 
 Config::Config(const std::string &sWorkspaceDir) {
     TAG = "Config";
     m_nHttpPort = 8080;
@@ -23,7 +23,7 @@ bool Config::applyServerConf() {
     std::string sConfigFile = m_sWorkspaceDir + "/conf.d/server.conf";
     Log::info(TAG, "Reading config: " + sConfigFile);
 
-    if (!FS::fileExists(sConfigFile)) {
+    if (!WsjcppCore::fileExists(sConfigFile)) {
         Log::err(TAG, "File " + sConfigFile + " does not exists ");
         return false;
     }
@@ -61,13 +61,13 @@ bool Config::applyServerConf() {
 
 bool Config::applyWebhooksConf() {
     std::string sConfDir = m_sWorkspaceDir + "/conf.d/";
-    if (!FS::dirExists(sConfDir)) {
+    if (!WsjcppCore::dirExists(sConfDir)) {
         Log::err(TAG, "Directory " + sConfDir + " not exists");
         return false;
     }
     Log::info(TAG, "Search webhook.conf");
 
-    std::vector<std::string> vListOfWebhooks = FS::listOfDirs(sConfDir);
+    std::vector<std::string> vListOfWebhooks = WsjcppCore::listOfDirs(sConfDir);
     if (vListOfWebhooks.size() == 0) {
         Log::err(TAG, "Folders with webhooks does not found in " + sConfDir);
         return false;
@@ -78,7 +78,7 @@ bool Config::applyWebhooksConf() {
         std::string sWebhookScriptDir = sConfDir + sFolder + "/";
         std::string sWebhookConfPath =  sWebhookScriptDir + "/webhook.conf";
         Log::info(TAG, "Reading " + sWebhookConfPath);
-        if (!FS::fileExists(sWebhookConfPath)) {
+        if (!WsjcppCore::fileExists(sWebhookConfPath)) {
             Log::err(TAG, "File " + sWebhookConfPath + " not exists");
             return false;
         }
@@ -99,7 +99,7 @@ bool Config::applyWebhooksConf() {
         Log::info(TAG, "script_path = " + sScriptPath);
         
         // Log::info(TAG, "sWebhookScriptDir: " + sWebhookScriptDir);
-        if (!FS::fileExists(sWebhookScriptDir + sScriptPath)) {
+        if (!WsjcppCore::fileExists(sWebhookScriptDir + sScriptPath)) {
             Log::err(TAG, "File " + sWebhookScriptDir + sScriptPath + " did not exists");
             return false;
         }

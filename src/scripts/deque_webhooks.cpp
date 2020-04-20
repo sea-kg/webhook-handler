@@ -9,7 +9,6 @@
 #include <regex>        // regex, sregex_token_iterator
 #include <stdio.h>
 #include <math.h>
-#include <fs.h>
 
 DequeWebhooks::DequeWebhooks(int nMaxDeque) {
 	m_nMaxDeque = nMaxDeque;

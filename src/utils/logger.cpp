@@ -6,7 +6,6 @@
 #include <thread>
 #include <stdio.h>
 #include <sstream>
-#include <fs.h>
 #include <ts.h>
 
 // Last log messages
