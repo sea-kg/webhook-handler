@@ -1,5 +1,6 @@
 .vscode
 mecd
+webhook-handler
 tmp/*
 .wsjcpp/*
 data/logs/*.log

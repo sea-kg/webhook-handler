@@ -1,33 +1,33 @@
 # SYSTEMD
 
-## copy (or replace) mecd.service
+## copy (or replace) webhook-handler.service
 
 ```
-$ sudo cp ./SYSTEMD/mecd.service  /etc/systemd/system/mecd.service
-$ sudo cp ../mecd /usr/bin/
+$ sudo cp ./SYSTEMD/webhook-handler.service  /etc/systemd/system/webhook-handler.service
+$ sudo cp ../webhook-handler /usr/bin/
 ```
 
 ## Create directories
 
 ```
-$ sudo mkdir /opt/mecd
-$ sudo cp -rf ../data/* /opt/mecd
+$ sudo mkdir /opt/webhook-handler
+$ sudo cp -rf ../data/* /opt/webhook-handler
 ```
 
 ## Reload and restart
 
 ```
 $ sudo systemctl daemon-reload
-$ sudo systemctl enable mecd
-$ sudo systemctl restart mecd.service
+$ sudo systemctl enable webhook-handler
+$ sudo systemctl restart webhook-handler.service
 ```
 
 ## Uninstall
 
 ```
-$ sudo systemctl stop mecd.service
-$ sudo systemctl disable mecd.service
-$ sudo rm /etc/systemd/system/mecd.service
+$ sudo systemctl stop webhook-handler.service
+$ sudo systemctl disable webhook-handler.service
+$ sudo rm /etc/systemd/system/webhook-handler.service
 $ sudo systemctl daemon-reload
 $ sudo systemctl reset-failed
 ```

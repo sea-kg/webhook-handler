@@ -1,4 +1,4 @@
-# My Easy Continues Delivery (mecd)
+# webhook-handler
 
 ## Build on debian/ubuntu
 
@@ -19,7 +19,7 @@ $ ./clean.sh && ./build_simple.sh
 ## Run
 
 ```
-./mecd --dir ./data start
+./webhook-handler --dir ./data start
 ```
 
 ## Configure examples

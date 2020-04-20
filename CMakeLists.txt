@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.0)
 
-project(mecd)
+project(webhook-handler)
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/src.wsjcpp/CMakeLists.txt)
 
 set(CMAKE_CXX_STANDARD 11)
-set(EXECUTABLE_OUTPUT_PATH ${mecd_SOURCE_DIR})
+set(EXECUTABLE_OUTPUT_PATH ${webhook-handler_SOURCE_DIR})
 # set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
 #### BEGIN_WSJCPP_APPEND
@@ -88,13 +88,13 @@ ENDIF(CURL_FOUND)
 
 include_directories(${WSJCPP_INCLUDE_DIRS})
 
-add_executable (mecd ${WSJCPP_SOURCES})
+add_executable (webhook-handler ${WSJCPP_SOURCES})
 
-target_link_libraries(mecd -lpthread ${WSJCPP_LIBRARIES} )
+target_link_libraries(webhook-handler -lpthread ${WSJCPP_LIBRARIES} )
 
 install(
     TARGETS
-        mecd
+        webhook-handler
     RUNTIME DESTINATION
         ${CMAKE_INSTALL_PREFIX}/bin
 )

@@ -1,0 +1,17 @@
+[Unit]
+Description=webhook-handler server
+After=syslog.target
+After=network.target
+
+[Service]
+WorkingDirectory=/opt/webhook-handler
+User=root
+Group=root
+ExecStart=/bin/sh -c '/usr/bin/webhook-handler --dir . start'
+
+TimeoutSec=30
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+Alias=webhook-handler.service
