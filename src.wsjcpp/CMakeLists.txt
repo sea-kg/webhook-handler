@@ -24,4 +24,8 @@ list (APPEND WSJCPP_SOURCES "./src.wsjcpp/wsjcpp_core/wsjcpp_core.h")
 list (APPEND WSJCPP_SOURCES "./src.wsjcpp/wsjcpp_core/wsjcpp_resources_manager.h")
 list (APPEND WSJCPP_SOURCES "./src.wsjcpp/wsjcpp_core/wsjcpp_resources_manager.cpp")
 
+# nlohmann/json:v3.7.3
+list (APPEND WSJCPP_INCLUDE_DIRS "./src.wsjcpp/nlohmann_json/")
+list (APPEND WSJCPP_SOURCES "./src.wsjcpp/nlohmann_json/json.hpp")
+
 

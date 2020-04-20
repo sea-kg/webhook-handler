@@ -38,8 +38,8 @@ void quitApp(int signum) {
 
 int main(int argc, char* argv[]) {
     std::string TAG = "MAIN";
-    std::string sAppName = std::string(MECD_APP_NAME);
-    std::string sAppVersion = std::string(MECD_VERSION);
+    std::string sAppName = std::string(WSJCPP_NAME);
+    std::string sAppVersion = std::string(WSJCPP_VERSION);
 
     HelpParseArgs helpParseArgs(argc, argv);
     helpParseArgs.setAppName(sAppName);

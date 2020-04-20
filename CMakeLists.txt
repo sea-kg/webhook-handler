@@ -2,9 +2,6 @@ cmake_minimum_required(VERSION 3.0)
 
 project(mecd)
 
-add_definitions(-DMECD_VERSION="0.2.0")
-add_definitions(-DMECD_APP_NAME="mecd")
-
 include(${CMAKE_CURRENT_SOURCE_DIR}/src.wsjcpp/CMakeLists.txt)
 
 set(CMAKE_CXX_STANDARD 11)
@@ -13,9 +10,6 @@ set(EXECUTABLE_OUTPUT_PATH ${mecd_SOURCE_DIR})
 
 #### BEGIN_WSJCPP_APPEND
 #### END_WSJCPP_APPEND
-
-set (WSJCPP_LIBRARIES "")
-set (WSJCPP_INCLUDE_DIRS "")
 
 # Sources
 
@@ -27,11 +21,7 @@ list (APPEND WSJCPP_INCLUDE_DIRS "src/utils")
 list (APPEND WSJCPP_INCLUDE_DIRS "src/interfaces")
 list (APPEND WSJCPP_INCLUDE_DIRS "src/web-server")
 list (APPEND WSJCPP_INCLUDE_DIRS "src/web-server/core")
-list (APPEND WSJCPP_INCLUDE_DIRS "src/3rd_party/nlohmann")
 list (APPEND WSJCPP_INCLUDE_DIRS "src/3rd_party/HowardHinnant/date")
-
-# nlohmann::json
-list (APPEND WSJCPP_SOURCES "src/3rd_party/nlohmann/json.hpp")
 
 # HowardHinnant/date
 list (APPEND WSJCPP_SOURCES "src/3rd_party/HowardHinnant/date/date.h")
