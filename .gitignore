@@ -1,6 +1,7 @@
 .vscode
 mecd
 tmp/*
+.wsjcpp/*
 data/logs/*.log
 
 # Prerequisites
