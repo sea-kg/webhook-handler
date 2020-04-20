@@ -27,3 +27,8 @@ dependencies:
     url: "https://github.com/nlohmann/json:develop"
     origin: "https://github.com/"
     installation-dir: "./src.wsjcpp/nlohmann_json"
+  - name: "wsjcpp-light-web-server"
+    version: "v0.1.0"
+    url: "https://github.com/wsjcpp/wsjcpp-light-web-server:master"
+    origin: "https://github.com/"
+    installation-dir: "./src.wsjcpp/wsjcpp_light_web_server"
