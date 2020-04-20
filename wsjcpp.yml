@@ -32,3 +32,8 @@ dependencies:
     url: "https://github.com/wsjcpp/wsjcpp-light-web-server:master"
     origin: "https://github.com/"
     installation-dir: "./src.wsjcpp/wsjcpp_light_web_server"
+  - name: "wsjcpp-yaml"
+    version: "v0.1.2"
+    url: "https://github.com/wsjcpp/wsjcpp-yaml:master"
+    origin: "https://github.com/"
+    installation-dir: "./src.wsjcpp/wsjcpp_yaml"
