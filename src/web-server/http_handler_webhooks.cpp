@@ -9,7 +9,7 @@
 #include <light_http_request.h>
 #include <light_http_response.h>
 #include <ts.h>
-#include <str.h>
+#include <wsjcpp_core.h>
 
 // ----------------------------------------------------------------------
 
