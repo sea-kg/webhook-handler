@@ -27,11 +27,8 @@ list (APPEND WSJCPP_INCLUDE_DIRS "src/3rd_party/HowardHinnant/date")
 list (APPEND WSJCPP_SOURCES "src/3rd_party/HowardHinnant/date/date.h")
 
 # utils
-list (APPEND WSJCPP_SOURCES "src/utils/colormod.h")
 list (APPEND WSJCPP_SOURCES "src/utils/help_parse_args.h")
 list (APPEND WSJCPP_SOURCES "src/utils/help_parse_args.cpp")
-list (APPEND WSJCPP_SOURCES "src/utils/logger.h")
-list (APPEND WSJCPP_SOURCES "src/utils/logger.cpp")
 list (APPEND WSJCPP_SOURCES "src/utils/conf_file_parser.h")
 list (APPEND WSJCPP_SOURCES "src/utils/conf_file_parser.cpp")
 

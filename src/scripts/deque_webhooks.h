@@ -11,18 +11,18 @@
 #include <deque>
 
 class DequeWebhooks {
-	public:
-		DequeWebhooks(int nMaxDeque);
+    public:
+        DequeWebhooks(int nMaxDeque);
         std::string popWebhookId();
-		void pushWebhookId(const std::string &sWebhooksId);
-		void cleanup();
+        void pushWebhookId(const std::string &sWebhooksId);
+        void cleanup();
 
-	private:
-		std::string TAG;
-		int m_nMaxDeque;
+    private:
+        std::string TAG;
+        int m_nMaxDeque;
 
-		std::mutex m_mtxDeque;
-		std::deque<std::string> m_dequeWebhooksId;
+        std::mutex m_mtxDeque;
+        std::deque<std::string> m_dequeWebhooksId;
 };
 
 #endif // DEQUE_WEBHOOKS_H

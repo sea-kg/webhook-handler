@@ -1,5 +1,5 @@
 #include "light_http_response.h"
-#include <logger.h>
+#include <wsjcpp_core.h>
 #include <sstream>
 #include <iostream>
 #include <vector>
@@ -42,10 +42,10 @@ LightHttpResponse::LightHttpResponse(int nSockFd) {
     }
 
     m_nSockFd = nSockFd;
-	m_bClosed = false;
-	noCache();
-	long nSec = WsjcppCore::currentTime_seconds();
-	m_sLastModified = WsjcppCore::formatTimeForWeb(nSec);
+    m_bClosed = false;
+    noCache();
+    long nSec = WsjcppCore::currentTime_seconds();
+    m_sLastModified = WsjcppCore::formatTimeForWeb(nSec);
     m_nResponseCode = 500;
     m_sDataType = "text/html";
 }
@@ -118,14 +118,14 @@ LightHttpResponse &LightHttpResponse::cacheSec(int nCacheSec) {
 std::string LightHttpResponse::prepareHeaders(int nLength) {
     std::string sResponseCode = LightHttpResponse::g_mapReponseDescription->at(m_nResponseCode);
     return sResponseCode + "\r\n"
-		"Date: " + m_sLastModified + "\r\n"
-		"Server: mecd\r\n"
+        "Date: " + m_sLastModified + "\r\n"
+        "Server: mecd\r\n"
         "Access-Control-Allow-Origin: *\r\n"
-		"Cache-Control: " + m_sCacheControl + "\r\n"
-		"Last-Modified: " + m_sLastModified + "\r\n" // TODO generate data
-		"Content-Length: " + std::to_string(nLength) + "\r\n"
-		"Content-Type: " + m_sDataType + "\r\n"
-		"Connection: Closed\r\n";
+        "Cache-Control: " + m_sCacheControl + "\r\n"
+        "Last-Modified: " + m_sLastModified + "\r\n" // TODO generate data
+        "Content-Length: " + std::to_string(nLength) + "\r\n"
+        "Content-Type: " + m_sDataType + "\r\n"
+        "Connection: Closed\r\n";
 }
 
 // ----------------------------------------------------------------------
@@ -133,19 +133,19 @@ std::string LightHttpResponse::prepareHeaders(int nLength) {
 void LightHttpResponse::sendText(const std::string &sBody) {
     m_sDataType = "text/html";
     
-	std::string sResponse = prepareHeaders(sBody.length())
-		+ "\r\n" + sBody;
-	
-	if(m_bClosed) {
-		Log::warn(TAG, "Already sended response");
-		return;
-	}
-	m_bClosed = true;
-	
-	Log::info(TAG, "\nResponse: \n>>>\n" + sResponse + "\n<<<");
+    std::string sResponse = prepareHeaders(sBody.length())
+        + "\r\n" + sBody;
+    
+    if(m_bClosed) {
+        WsjcppLog::warn(TAG, "Already sended response");
+        return;
+    }
+    m_bClosed = true;
+    
+    WsjcppLog::info(TAG, "\nResponse: \n>>>\n" + sResponse + "\n<<<");
 
-	send(m_nSockFd, sResponse.c_str(), sResponse.length(),0);
-	close(m_nSockFd);
+    send(m_nSockFd, sResponse.c_str(), sResponse.length(),0);
+    close(m_nSockFd);
 }
 
 // ----------------------------------------------------------------------
@@ -158,37 +158,37 @@ void LightHttpResponse::sendEmpty() {
 
 void LightHttpResponse::sendOptions(const std::string &sOptions) {
     m_sDataType = "text/html";
-	std::string sResponse = prepareHeaders(0)
+    std::string sResponse = prepareHeaders(0)
         + "Access-Control-Allow-Methods: " + sOptions
-		+ "\r\n\r\n";
-	
-	if(m_bClosed) {
-		Log::warn(TAG, "Already sended response");
-		return;
-	}
-	m_bClosed = true;
-	
-	Log::info(TAG, "\nResponse: \n>>>\n" + sResponse + "\n<<<");
+        + "\r\n\r\n";
+    
+    if(m_bClosed) {
+        WsjcppLog::warn(TAG, "Already sended response");
+        return;
+    }
+    m_bClosed = true;
+    
+    WsjcppLog::info(TAG, "\nResponse: \n>>>\n" + sResponse + "\n<<<");
 
-	send(m_nSockFd, sResponse.c_str(), sResponse.length(),0);
-	close(m_nSockFd);
+    send(m_nSockFd, sResponse.c_str(), sResponse.length(),0);
+    close(m_nSockFd);
 }
 
 // ----------------------------------------------------------------------
 
 void LightHttpResponse::sendDontUnderstand() {
     std::string sResponse = "I don't understand you! Are you just a machine? Or maybe hacker?";
-	
-	if(m_bClosed) {
-		Log::warn(TAG, "Already sended response");
-		return;
-	}
-	m_bClosed = true;
-	
-	Log::info(TAG, "\nResponse: \n>>>\n" + sResponse + "\n<<<");
+    
+    if (m_bClosed) {
+        WsjcppLog::warn(TAG, "Already sended response");
+        return;
+    }
+    m_bClosed = true;
+    
+    WsjcppLog::info(TAG, "\nResponse: \n>>>\n" + sResponse + "\n<<<");
 
-	send(m_nSockFd, sResponse.c_str(), sResponse.length(),0);
-	close(m_nSockFd);
+    send(m_nSockFd, sResponse.c_str(), sResponse.length(),0);
+    close(m_nSockFd);
 }
 
 

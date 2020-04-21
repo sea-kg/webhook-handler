@@ -1,6 +1,6 @@
 
 #include "dorunscript.h"
-#include <logger.h>
+#include <wsjcpp_core.h>
 #include <mutex>
 #include <sstream>
 #include <iostream>
@@ -56,11 +56,11 @@ const std::string &DoRunScript::outputString() {
 // ----------------------------------------------------------------------
 
 void* newProcessThread(void *arg) {
-	// Log::info("newRequest", "");
-	DoRunScript *m_DoRunScript = (DoRunScript *)arg;
-	pthread_detach(pthread_self());
-	m_DoRunScript->run();
-	return 0;
+    // Log::info("newRequest", "");
+    DoRunScript *m_DoRunScript = (DoRunScript *)arg;
+    pthread_detach(pthread_self());
+    m_DoRunScript->run();
+    return 0;
 }
 
 // ----------------------------------------------------------------------
@@ -108,7 +108,7 @@ void DoRunScript::run() {
 
     if (pipe(fd) != 0) {
         m_sOutput = "Could not open pipe";
-        Log::err(TAG, m_sOutput);
+        WsjcppLog::err(TAG, m_sOutput);
         m_nExitCode = -1;
         m_bHasError = true;
         m_bFinishedByTimeout = false;
@@ -120,7 +120,7 @@ void DoRunScript::run() {
 
     if(nChildPid < 0) {
         m_sOutput = "fork failed!";
-        Log::err(TAG, m_sOutput);
+        WsjcppLog::err(TAG, m_sOutput);
         m_nExitCode = -1;
         m_bHasError = true;
         m_bFinishedByTimeout = false;
@@ -172,7 +172,7 @@ void DoRunScript::run() {
         close(nPipeOut);
         m_bHasError = true;
         m_nExitCode = -1;
-        Log::err("DoRunProcess", "bad alloc");
+        WsjcppLog::err("DoRunProcess", "bad alloc");
         return;
     }
     

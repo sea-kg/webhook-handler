@@ -1,5 +1,4 @@
 #include "config.h"
-#include <logger.h>
 #include <sstream>
 #include <ctime>
 #include <locale>
@@ -21,38 +20,38 @@ Config::Config(const std::string &sWorkspaceDir) {
 
 bool Config::applyServerConf() {
     std::string sConfigFile = m_sWorkspaceDir + "/conf.d/server.conf";
-    Log::info(TAG, "Reading config: " + sConfigFile);
+    WsjcppLog::info(TAG, "Reading config: " + sConfigFile);
 
     if (!WsjcppCore::fileExists(sConfigFile)) {
-        Log::err(TAG, "File " + sConfigFile + " does not exists ");
+        WsjcppLog::err(TAG, "File " + sConfigFile + " does not exists ");
         return false;
     }
 
     ConfFileParser serverConf = ConfFileParser(sConfigFile);
     if (!serverConf.parseConfig()) {
-        Log::err(TAG, "Could not parse " + sConfigFile);
+        WsjcppLog::err(TAG, "Could not parse " + sConfigFile);
         return false;
     }
     
     m_nHttpPort = serverConf.getIntValueFromConfig("http_port", m_nHttpPort);
     if (m_nHttpPort <= 10 || m_nHttpPort > 65536) {
-        Log::err(TAG, sConfigFile + ": wrong http_port (expected value od 11..65535)");
+        WsjcppLog::err(TAG, sConfigFile + ": wrong http_port (expected value od 11..65535)");
         return false;
     }
-    Log::info(TAG, "http_port: " + std::to_string(m_nHttpPort));
+    WsjcppLog::info(TAG, "http_port: " + std::to_string(m_nHttpPort));
 
     m_nThreadsForScripts = serverConf.getIntValueFromConfig("threads_for_scripts", m_nThreadsForScripts);
     if (m_nThreadsForScripts <= 0 || m_nThreadsForScripts > 10) {
-        Log::err(TAG, sConfigFile + ": wrong threads_for_scripts");
+        WsjcppLog::err(TAG, sConfigFile + ": wrong threads_for_scripts");
         return false;
     }
 
     m_nMaxDequeWebhooks = serverConf.getIntValueFromConfig("max_deque_webhooks", m_nMaxDequeWebhooks);
-    Log::info(TAG, "max_deque_webhooks = " + std::to_string(m_nMaxDequeWebhooks));
+    WsjcppLog::info(TAG, "max_deque_webhooks = " + std::to_string(m_nMaxDequeWebhooks));
 
 
     m_nSleepBetweenRunScriptsInSec = serverConf.getIntValueFromConfig("sleep_between_run_scripts_in_sec", 1);
-    Log::info(TAG, "sleep_between_run_scripts_in_sec = " + std::to_string(m_nSleepBetweenRunScriptsInSec));
+    WsjcppLog::info(TAG, "sleep_between_run_scripts_in_sec = " + std::to_string(m_nSleepBetweenRunScriptsInSec));
 
     return true;
 }
@@ -62,14 +61,14 @@ bool Config::applyServerConf() {
 bool Config::applyWebhooksConf() {
     std::string sConfDir = m_sWorkspaceDir + "/conf.d/";
     if (!WsjcppCore::dirExists(sConfDir)) {
-        Log::err(TAG, "Directory " + sConfDir + " not exists");
+        WsjcppLog::err(TAG, "Directory " + sConfDir + " not exists");
         return false;
     }
-    Log::info(TAG, "Search webhook.conf");
+    WsjcppLog::info(TAG, "Search webhook.conf");
 
     std::vector<std::string> vListOfWebhooks = WsjcppCore::listOfDirs(sConfDir);
     if (vListOfWebhooks.size() == 0) {
-        Log::err(TAG, "Folders with webhooks does not found in " + sConfDir);
+        WsjcppLog::err(TAG, "Folders with webhooks does not found in " + sConfDir);
         return false;
     }
 
@@ -77,49 +76,49 @@ bool Config::applyWebhooksConf() {
         std::string sFolder = vListOfWebhooks[i];
         std::string sWebhookScriptDir = sConfDir + sFolder + "/";
         std::string sWebhookConfPath =  sWebhookScriptDir + "/webhook.conf";
-        Log::info(TAG, "Reading " + sWebhookConfPath);
+        WsjcppLog::info(TAG, "Reading " + sWebhookConfPath);
         if (!WsjcppCore::fileExists(sWebhookConfPath)) {
-            Log::err(TAG, "File " + sWebhookConfPath + " not exists");
+            WsjcppLog::err(TAG, "File " + sWebhookConfPath + " not exists");
             return false;
         }
         ConfFileParser serviceConf = ConfFileParser(sWebhookConfPath);
         if (!serviceConf.parseConfig()) {
-            Log::err(TAG, "Could not parse " + sWebhookConfPath);
+            WsjcppLog::err(TAG, "Could not parse " + sWebhookConfPath);
             return false;
         }
 
         std::string sWebhookId = serviceConf.getStringValueFromConfig("id", "");
-        Log::info(TAG, "id = " + sWebhookId);
+        WsjcppLog::info(TAG, "id = " + sWebhookId);
 
         bool bWebhookEnable 
             = serviceConf.getBoolValueFromConfig("enabled", false);
-        Log::info(TAG, "enabled = " + std::string(bWebhookEnable ? "yes" : "no"));
+        WsjcppLog::info(TAG, "enabled = " + std::string(bWebhookEnable ? "yes" : "no"));
 
         std::string sScriptPath = serviceConf.getStringValueFromConfig("script_path", "");
-        Log::info(TAG, "script_path = " + sScriptPath);
+        WsjcppLog::info(TAG, "script_path = " + sScriptPath);
         
         // Log::info(TAG, "sWebhookScriptDir: " + sWebhookScriptDir);
         if (!WsjcppCore::fileExists(sWebhookScriptDir + sScriptPath)) {
-            Log::err(TAG, "File " + sWebhookScriptDir + sScriptPath + " did not exists");
+            WsjcppLog::err(TAG, "File " + sWebhookScriptDir + sScriptPath + " did not exists");
             return false;
         }
 
         int nScritpWait = serviceConf.getIntValueFromConfig("script_wait_in_sec", 60);
-        Log::info(TAG, "script_wait_in_sec = " + std::to_string(nScritpWait));
+        WsjcppLog::info(TAG, "script_wait_in_sec = " + std::to_string(nScritpWait));
 
         if (nScritpWait < 5) {
-            Log::err(TAG, "Could not parse script_wait_in_sec - must be more than 4 sec ");
+            WsjcppLog::err(TAG, "Could not parse script_wait_in_sec - must be more than 4 sec ");
             return false;
         }
 
         if (!bWebhookEnable) {
-            Log::warn(TAG, "Webhook " + sFolder + " - disabled ");
+            WsjcppLog::warn(TAG, "Webhook " + sFolder + " - disabled ");
             continue;
         }
         
         for (unsigned int i = 0; i < m_vWebhooksConf.size(); i++) {
             if (m_vWebhooksConf[i].id() == sWebhookId) {
-                Log::err(TAG, "Already registered webhook " + sWebhookId);
+                WsjcppLog::err(TAG, "Already registered webhook " + sWebhookId);
                 return false;
             }
         }
@@ -133,11 +132,11 @@ bool Config::applyWebhooksConf() {
         _webhookConf.setScriptWaitInSec(nScritpWait);
         m_vWebhooksConf.push_back(_webhookConf);
 
-        Log::ok(TAG, "Registered webhook " + sFolder + " -> /wh/" + sWebhookId);
+        WsjcppLog::ok(TAG, "Registered webhook " + sFolder + " -> /wh/" + sWebhookId);
     }
 
     if (m_vWebhooksConf.size() == 0) {
-        Log::err(TAG, "No one defined webhooks in " + sConfDir);
+        WsjcppLog::err(TAG, "No one defined webhooks in " + sConfDir);
         return false;
     }
 
@@ -148,7 +147,7 @@ bool Config::applyWebhooksConf() {
 
 bool Config::applyConfig() {
     bool bResult = true;
-    Log::info(TAG, "Loading configuration... ");
+    WsjcppLog::info(TAG, "Loading configuration... ");
     
     // apply the server config
     if (!this->applyServerConf()) {

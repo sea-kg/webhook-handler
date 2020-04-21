@@ -14,7 +14,6 @@
 #include <thread>
 #include <algorithm>
 #include <scripts_thread.h>
-#include <logger.h>
 #include <light_http_server.h>
 #include <http_handler_webhooks.h>
 #include <help_parse_args.h>
@@ -53,7 +52,7 @@ int main(int argc, char* argv[]) {
 
     std::string sArgsErrors;
     if (!helpParseArgs.checkArgs(sArgsErrors)){
-        Log::err(TAG, "Arguments has errors " + sArgsErrors);
+        WsjcppLog::err(TAG, "Arguments has errors " + sArgsErrors);
         return -1;
     }
 
@@ -78,13 +77,13 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    Log::setDir(sLogDir);
+    WsjcppLog::setLogDirectory(sLogDir);
     std::cout << "Logger: '" + sWorkspace + "/logs/' \n";
-    Log::info(TAG, "Version: " + std::string(sAppVersion));
+    WsjcppLog::info(TAG, "Version: " + std::string(sAppVersion));
 
     Config *pConfig = new Config(sWorkspace);
     if (!pConfig->applyConfig()) {
-        Log::err(TAG, "Could not read config");
+        WsjcppLog::err(TAG, "Could not read config");
         return -1;
     }
 
@@ -94,7 +93,7 @@ int main(int argc, char* argv[]) {
     signal( SIGTERM, quitApp );
 
     if (helpParseArgs.has("start")) {
-        Log::info(TAG, "Starting...");
+        WsjcppLog::info(TAG, "Starting...");
         DequeWebhooks *pDequeWebhooks = new DequeWebhooks(pConfig->maxDequeWebhooks());
 
         for (int i = 0; i < pConfig->threadsForScripts(); i++) {
@@ -103,16 +102,16 @@ int main(int argc, char* argv[]) {
             g_vThreads.push_back(thr);
         }
 
-        Log::ok(TAG, "Start web-server on " + std::to_string(pConfig->httpPort()));
+        WsjcppLog::ok(TAG, "Start web-server on " + std::to_string(pConfig->httpPort()));
         g_httpServer.handlers()->add((LightHttpHandlerBase *) new HttpHandlerWebhooks(pConfig, pDequeWebhooks));
         // pConfig->setStorage(new RamStorage(pConfig->scoreboard())); // replace storage to ram for tests
         g_httpServer.start(pConfig->httpPort()); // will be block thread
 
         // TODO: stop all threads
         /*while(1) {
-            Log::info(TAG, "wait 2 minutes");
+            WsjcppLog::info(TAG, "wait 2 minutes");
             std::this_thread::sleep_for(std::chrono::minutes(2));
-            Log::info(TAG, "wait ended");
+            WsjcppLog::info(TAG, "wait ended");
         }*/
         return 0;
     }

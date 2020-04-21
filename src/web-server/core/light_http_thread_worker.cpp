@@ -1,5 +1,5 @@
 #include "light_http_thread_worker.h"
-#include <logger.h>
+#include <wsjcpp_core.h>
 #include <light_http_handlers.h>
 #include <light_http_response.h>
 #include <thread>
@@ -7,10 +7,10 @@
 // ----------------------------------------------------------------------
 
 void* processRequest(void *arg) {
-	LightHttpThreadWorker *pWorker = (LightHttpThreadWorker *)arg;
-	pthread_detach(pthread_self());
+    LightHttpThreadWorker *pWorker = (LightHttpThreadWorker *)arg;
+    pthread_detach(pthread_self());
     pWorker->run();
-	return 0;
+    return 0;
 }
 
 // ----------------------------------------------------------------------
@@ -41,11 +41,11 @@ void LightHttpThreadWorker::stop() {
 void LightHttpThreadWorker::run() {
     const int nMaxPackageSize = 4096;
     while(1) {
-		if (m_bStop) return;
+        if (m_bStop) return;
         LightHttpRequest *pInfo = m_pDeque->popRequest();
-		bool bExists = pInfo != nullptr;
+        bool bExists = pInfo != nullptr;
         // TODO refactor
-		if (bExists) {
+        if (bExists) {
             int nSockFd = pInfo->sockFd();
 
             // set timeout options
@@ -60,7 +60,7 @@ void LightHttpThreadWorker::run() {
             char *clientip = new char[20];
             memset(clientip, 0, 20);
             strcpy(clientip, inet_ntoa(addr.sin_addr));
-            Log::info(TAG, "IP-address: " + std::string(clientip));
+            WsjcppLog::info(TAG, "IP-address: " + std::string(clientip));
 
             LightHttpResponse *pResponse = new LightHttpResponse(nSockFd);
             int n;
@@ -87,7 +87,7 @@ void LightHttpThreadWorker::run() {
                     //close(nSockFd);
                     break;
                 }
-                Log::info(TAG, "Readed " + std::to_string(n) + " bytes...");
+                WsjcppLog::info(TAG, "Readed " + std::to_string(n) + " bytes...");
                 msg[n] = 0;
                 //send(newsockfd,msg,n,0);
                 sRequest = std::string(msg);
@@ -100,7 +100,7 @@ void LightHttpThreadWorker::run() {
                 }
                 std::this_thread::sleep_for(std::chrono::milliseconds(100));
             }
-            Log::info(TAG, "\nRequest: \n>>>\n" + sRequest + "\n<<<");
+            WsjcppLog::info(TAG, "\nRequest: \n>>>\n" + sRequest + "\n<<<");
 
             if (bErrorRead) {
                 pResponse->sendDontUnderstand();
@@ -116,15 +116,15 @@ void LightHttpThreadWorker::run() {
                     // this->response(LightHttpResponse::RESP_INTERNAL_SERVER_ERROR);     
                 }
             }
-			delete pInfo;
+            delete pInfo;
             delete pResponse;
-		}
+        }
 
-		if (!bExists) {
+        if (!bExists) {
             if (m_bStop) return;
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
             if (m_bStop) return;
-		}
-	}
+        }
+    }
 }
     

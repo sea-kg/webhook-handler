@@ -4,8 +4,6 @@
 #include <regex>
 #include <algorithm>
 #include <time.h>
-
-#include <logger.h>
 #include <light_http_request.h>
 #include <light_http_response.h>
 #include <wsjcpp_core.h>

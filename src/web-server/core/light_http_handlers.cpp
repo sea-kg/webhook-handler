@@ -1,6 +1,6 @@
 #include "light_http_handlers.h"
-#include <logger.h>
 #include <algorithm>
+#include <wsjcpp_core.h>
 
 // ---------------------------------------------------------------------
 
@@ -50,7 +50,7 @@ bool LightHttpHandlers::handle(const std::string &sWorkerId, LightHttpRequest *p
             if (m_pHandlers[i]->handle(sWorkerId, pRequest)) {
                 return true;
             } else {
-                Log::warn("LightHttpHandlers", m_pHandlers[i]->name() + " - could not handle request '" + pRequest->requestPath() + "'");
+                WsjcppLog::warn("LightHttpHandlers", m_pHandlers[i]->name() + " - could not handle request '" + pRequest->requestPath() + "'");
             }
         }
     }

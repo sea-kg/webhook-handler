@@ -2,10 +2,8 @@
 #include <unistd.h>
 
 #include <dorunscript.h>
-
 #include <iostream>
 #include <sstream>
-#include <logger.h>
 #include <chrono>
 #include <thread>
 #include <sys/types.h>
@@ -15,6 +13,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <signal.h>
+#include <wsjcpp_core.h>
 
 // ---------------------------------------------------------------------
 
@@ -25,18 +24,18 @@ ScriptsThread::ScriptsThread(Config *pConfig, int nNumber, DequeWebhooks *pDeque
     m_nNumber = nNumber;
 
     TAG = "ScriptsThread_" + std::to_string(m_nNumber);
-    Log::info(TAG, "Created thread");
+    WsjcppLog::info(TAG, "Created thread");
 }
 
 // ----------------------------------------------------------------------
 // newRequest
 
 void* newScriptsThread(void *arg) {
-	// Log::info("newRequest", "");
-	ScriptsThread *pServerThread = (ScriptsThread *)arg;
-	pthread_detach(pthread_self());
-	pServerThread->run();
-	return 0;
+    // Log::info("newRequest", "");
+    ScriptsThread *pServerThread = (ScriptsThread *)arg;
+    pthread_detach(pthread_self());
+    pServerThread->run();
+    return 0;
 }
 
 // ----------------------------------------------------------------------
@@ -54,7 +53,7 @@ int ScriptsThread::runScript(const std::string &sCommand) {
 
     std::string sShellCommand = " " + sCommand;
 
-    Log::info(TAG, "Start script " + sShellCommand);
+    WsjcppLog::info(TAG, "Start script " + sShellCommand);
 
     /*DoRunChecker process(m_serviceConf.scriptDir(), m_serviceConf.scriptPath());
     process.start(m_serviceConf.scriptWaitInSec()*1000);
@@ -64,8 +63,8 @@ int ScriptsThread::runScript(const std::string &sCommand) {
     }
 
     if (process.hasError()) {
-        Log::err(TAG, "Checker is shit");
-        Log::err(TAG, "Error on run script service: " + process.outputString());
+        WsjcppLog::err(TAG, "Checker is shit");
+        WsjcppLog::err(TAG, "Error on run script service: " + process.outputString());
         return ScriptsThread::CHECKER_CODE_SHIT;
     }
 
@@ -92,7 +91,7 @@ void ScriptsThread::run() {
 
     // TODO check if game ended
 
-    Log::info(TAG, "Starting thread...");
+    WsjcppLog::info(TAG, "Starting thread...");
     /*if (QString::fromStdString(m_teamConf.ipAddress()).isEmpty()) {
         Log::err(TAG, "User IP Address is empty!!!");
         return;
@@ -102,7 +101,7 @@ void ScriptsThread::run() {
     /*
     // already checked on start
     if (!Log::fileExists(sScriptPath)) {
-        Log::err(TAG, "FAIL: Script Path to checker not found '" + sScriptPath + "'");
+        WsjcppLog::err(TAG, "FAIL: Script Path to checker not found '" + sScriptPath + "'");
         // TODO shit status
         return;
     }*/
@@ -116,7 +115,7 @@ void ScriptsThread::run() {
             continue;
         }
 
-        Log::info(TAG, "Start execute webhook " + sWebhookId);
+        WsjcppLog::info(TAG, "Start execute webhook " + sWebhookId);
         int nSize = m_pConfig->webhooksConf().size();
         Webhook webhook;
         bool bFound = false;
@@ -127,7 +126,7 @@ void ScriptsThread::run() {
             };
         }
         if (!bFound) {
-            Log::err(TAG, "Not found webhook " + sWebhookId);
+            WsjcppLog::err(TAG, "Not found webhook " + sWebhookId);
             continue;
         }
 
@@ -138,30 +137,30 @@ void ScriptsThread::run() {
         process.start(webhook.scriptWaitInSec()*1000);
 
         if (process.isTimeout()) {
-            Log::err(TAG, "Finished by timeout " + sWebhookId);
-            Log::err(TAG, process.outputString());
+            WsjcppLog::err(TAG, "Finished by timeout " + sWebhookId);
+            WsjcppLog::err(TAG, process.outputString());
             continue;
         }
 
         if (process.hasError()) {
-            Log::err(TAG, "Script failed");
-            Log::err(TAG, "Error on run script: " + process.outputString());
+            WsjcppLog::err(TAG, "Script failed");
+            WsjcppLog::err(TAG, "Error on run script: " + process.outputString());
             continue;
         }
 
         int nExitCode = process.exitCode();
         if (nExitCode != 0) {
-            Log::err(TAG, "Wrong script exit code " + std::to_string(nExitCode) + "...\n"
+            WsjcppLog::err(TAG, "Wrong script exit code " + std::to_string(nExitCode) + "...\n"
                 "\n" + process.outputString());
             continue;
         } else {
-            Log::info(TAG, "Output:\n" + process.outputString());
-            Log::ok(TAG, "Script done.");
+            WsjcppLog::info(TAG, "Output:\n" + process.outputString());
+            WsjcppLog::ok(TAG, "Script done.");
 
         }
         end = std::chrono::system_clock::now();
 
         int elapsed_milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
-        Log::info(TAG, "Elapsed milliseconds: " + std::to_string(elapsed_milliseconds) + "ms");
+        WsjcppLog::info(TAG, "Elapsed milliseconds: " + std::to_string(elapsed_milliseconds) + "ms");
     }
 }
