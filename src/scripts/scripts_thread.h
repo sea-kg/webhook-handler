@@ -6,7 +6,7 @@
 
 class ScriptsThread {
     public:
-        ScriptsThread(Config *pConfig, int nNumber, DequeWebhooks *pDequeWebhooks);
+        ScriptsThread(Config *pConfig, int nWaitSecondsBetweenRunScripts, int nNumber, DequeWebhooks *pDequeWebhooks);
         void start();
         void run();
 
@@ -14,6 +14,7 @@ class ScriptsThread {
         std::string TAG;
         pthread_t m_checkerThread;
         Config *m_pConfig;
+        int m_nWaitSecondsBetweenRunScripts;
         DequeWebhooks *m_pDequeWebhooks;
         int m_nNumber;
 

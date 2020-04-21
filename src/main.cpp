@@ -87,6 +87,7 @@ int main(int argc, char* argv[]) {
     if (!yamlConfig.loadFromFile(sConfigFile)) {
        return -1;
     }
+
     std::string sServerPort = yamlConfig["server"]["port"].getValue(); 
     int nServerPort = std::atoi(sServerPort.c_str()); 
     if (nServerPort <= 10 || nServerPort > 65536) {
@@ -94,6 +95,27 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
+    std::string sMaxDeque = yamlConfig["server"]["max-deque"].getValue();
+    int nMaxDeque = std::atoi(sMaxDeque.c_str());
+    if (nMaxDeque <= 10 || nMaxDeque > 1000) {
+        WsjcppLog::err(TAG, sConfigFile + ": wrong server max-deque (expected value od 10..1000)");
+        return -1;
+    }
+
+    std::string sMaxScriptThreads = yamlConfig["server"]["max-script-threads"].getValue();
+    int nMaxScriptThreads = std::atoi(sMaxScriptThreads.c_str());
+    if (nMaxScriptThreads < 1 || nMaxScriptThreads > 100) {
+        WsjcppLog::err(TAG, sConfigFile + ": wrong server max-script-threads (expected value od 1..100)");
+        return -1;
+    }
+
+    std::string sWaitSecondsBetweenRunScripts = yamlConfig["server"]["wait-seconds-between-run-scripts"].getValue();
+    int nWaitSecondsBetweenRunScripts = std::atoi(sWaitSecondsBetweenRunScripts.c_str());
+    if (nWaitSecondsBetweenRunScripts < 1 || nWaitSecondsBetweenRunScripts > 100) {
+        WsjcppLog::err(TAG, sConfigFile + ": wrong server wait-seconds-between-run-scripts (expected value od 1..100)");
+        return -1;
+    }
+    
     Config *pConfig = new Config(sWorkspace);
     if (!pConfig->applyConfig()) {
         WsjcppLog::err(TAG, "Could not read config");
@@ -107,17 +129,16 @@ int main(int argc, char* argv[]) {
 
     if (helpParseArgs.has("start")) {
         WsjcppLog::info(TAG, "Starting...");
-        DequeWebhooks *pDequeWebhooks = new DequeWebhooks(pConfig->maxDequeWebhooks());
+        DequeWebhooks *pDequeWebhooks = new DequeWebhooks(nMaxDeque);
 
-        for (int i = 0; i < pConfig->threadsForScripts(); i++) {
-            ScriptsThread *thr = new ScriptsThread(pConfig, i, pDequeWebhooks);
+        for (int i = 0; i < nMaxScriptThreads; i++) {
+            ScriptsThread *thr = new ScriptsThread(pConfig, nWaitSecondsBetweenRunScripts, i, pDequeWebhooks);
             thr->start();
             g_vThreads.push_back(thr);
         }
 
         WsjcppLog::ok(TAG, "Start web-server on " + std::to_string(nServerPort));
         g_httpServer.handlers()->add((LightHttpHandlerBase *) new HttpHandlerWebhooks(pConfig, pDequeWebhooks));
-        // pConfig->setStorage(new RamStorage(pConfig->scoreboard())); // replace storage to ram for tests
         g_httpServer.start(nServerPort); // will be block thread
 
         // TODO: stop all threads

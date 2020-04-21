@@ -17,13 +17,19 @@
 
 // ---------------------------------------------------------------------
 
-ScriptsThread::ScriptsThread(Config *pConfig, int nNumber, DequeWebhooks *pDequeWebhooks) {
+ScriptsThread::ScriptsThread(
+    Config *pConfig, 
+    int nWaitSecondsBetweenRunScripts,
+    int nNumber,
+    DequeWebhooks *pDequeWebhooks
+) {
+    TAG = "ScriptsThread_" + std::to_string(m_nNumber);
     
     m_pConfig = pConfig;
+    m_nWaitSecondsBetweenRunScripts = nWaitSecondsBetweenRunScripts;
     m_pDequeWebhooks = pDequeWebhooks;
     m_nNumber = nNumber;
 
-    TAG = "ScriptsThread_" + std::to_string(m_nNumber);
     WsjcppLog::info(TAG, "Created thread");
 }
 
@@ -93,14 +99,14 @@ void ScriptsThread::run() {
 
     WsjcppLog::info(TAG, "Starting thread...");
     /*if (QString::fromStdString(m_teamConf.ipAddress()).isEmpty()) {
-        Log::err(TAG, "User IP Address is empty!!!");
+        WsjcppLog::err(TAG, "User IP Address is empty!!!");
         return;
     }*/
 
     // std::string sScriptPath = m_serviceConf.scriptPath();
     /*
     // already checked on start
-    if (!Log::fileExists(sScriptPath)) {
+    if (!WsjcppLog::fileExists(sScriptPath)) {
         WsjcppLog::err(TAG, "FAIL: Script Path to checker not found '" + sScriptPath + "'");
         // TODO shit status
         return;
@@ -108,7 +114,7 @@ void ScriptsThread::run() {
 
     while(1) {
 
-        std::this_thread::sleep_for(std::chrono::seconds(m_pConfig->sleepBetweenRunScriptsInSec()));
+        std::this_thread::sleep_for(std::chrono::seconds(m_nWaitSecondsBetweenRunScripts));
 
         std::string sWebhookId = m_pDequeWebhooks->popWebhookId();
         if (sWebhookId == "") {

@@ -1,5 +1,11 @@
 server:
   port: 8001
-  sleep_between_run_scripts_in_sec: 60
-  threads_for_scripts: 1
-  max_deque_webhooks: 100
+  wait-seconds-between-run-scripts: 60
+  max-script-threads: 1
+  max-deque: 100
+  end: 1
+
+webhook-handlers:
+  nodejs_example_rebuild:
+    secret-url-path: "/wh/eSdR93Sq1w"
+    

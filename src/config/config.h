@@ -10,18 +10,11 @@ class Config {
         bool applyConfig();
 
         const std::vector<Webhook> &webhooksConf();
-        int threadsForScripts();
-        int maxDequeWebhooks();
-        int sleepBetweenRunScriptsInSec();
 
     private:
-        bool applyServerConf();
         bool applyWebhooksConf();
         
         std::string TAG;
-        int m_nThreadsForScripts;
-        int m_nMaxDequeWebhooks;
-        int m_nSleepBetweenRunScriptsInSec;
         
         std::string m_sWorkspaceDir;
         std::vector<Webhook> m_vWebhooksConf;

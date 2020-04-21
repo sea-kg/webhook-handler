@@ -11,41 +11,6 @@
 Config::Config(const std::string &sWorkspaceDir) {
     TAG = "Config";
     m_sWorkspaceDir = sWorkspaceDir;
-    m_nThreadsForScripts = 1;
-    m_nMaxDequeWebhooks = 100;
-}
-
-// ---------------------------------------------------------------------
-
-bool Config::applyServerConf() {
-    std::string sConfigFile = m_sWorkspaceDir + "/conf.d/server.conf";
-    WsjcppLog::info(TAG, "Reading config: " + sConfigFile);
-
-    if (!WsjcppCore::fileExists(sConfigFile)) {
-        WsjcppLog::err(TAG, "File " + sConfigFile + " does not exists ");
-        return false;
-    }
-
-    ConfFileParser serverConf = ConfFileParser(sConfigFile);
-    if (!serverConf.parseConfig()) {
-        WsjcppLog::err(TAG, "Could not parse " + sConfigFile);
-        return false;
-    }
-    
-    m_nThreadsForScripts = serverConf.getIntValueFromConfig("threads_for_scripts", m_nThreadsForScripts);
-    if (m_nThreadsForScripts <= 0 || m_nThreadsForScripts > 10) {
-        WsjcppLog::err(TAG, sConfigFile + ": wrong threads_for_scripts");
-        return false;
-    }
-
-    m_nMaxDequeWebhooks = serverConf.getIntValueFromConfig("max_deque_webhooks", m_nMaxDequeWebhooks);
-    WsjcppLog::info(TAG, "max_deque_webhooks = " + std::to_string(m_nMaxDequeWebhooks));
-
-
-    m_nSleepBetweenRunScriptsInSec = serverConf.getIntValueFromConfig("sleep_between_run_scripts_in_sec", 1);
-    WsjcppLog::info(TAG, "sleep_between_run_scripts_in_sec = " + std::to_string(m_nSleepBetweenRunScriptsInSec));
-
-    return true;
 }
 
 // ---------------------------------------------------------------------
@@ -142,11 +107,6 @@ bool Config::applyConfig() {
     WsjcppLog::info(TAG, "Loading configuration... ");
     
     // apply the server config
-    if (!this->applyServerConf()) {
-        return false;
-    }
-
-    // apply the server config
     if (!this->applyWebhooksConf()) {
         return false;
     }
@@ -159,22 +119,3 @@ bool Config::applyConfig() {
 const std::vector<Webhook> &Config::webhooksConf() {
     return m_vWebhooksConf;
 }
-
-// ---------------------------------------------------------------------
-
-int Config::threadsForScripts() {
-    return m_nThreadsForScripts;
-}
-
-// ---------------------------------------------------------------------
-
-int Config::maxDequeWebhooks() {
-    return m_nMaxDequeWebhooks;
-}
-
-// ---------------------------------------------------------------------
-
-int Config::sleepBetweenRunScriptsInSec() {
-    return m_nSleepBetweenRunScriptsInSec;
-}
-
