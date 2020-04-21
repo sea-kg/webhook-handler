@@ -1,5 +1,7 @@
 # webhook-handler
 
+[![Build Status](https://api.travis-ci.com/sea-kg/webhook-handler.svg?branch=master)](https://travis-ci.com/sea-kg/webhook-handler)
+
 ## Build on debian/ubuntu
 
 Install requriments
