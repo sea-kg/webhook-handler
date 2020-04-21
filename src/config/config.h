@@ -10,7 +10,6 @@ class Config {
         bool applyConfig();
 
         const std::vector<Webhook> &webhooksConf();
-        int httpPort();
         int threadsForScripts();
         int maxDequeWebhooks();
         int sleepBetweenRunScriptsInSec();
@@ -20,7 +19,6 @@ class Config {
         bool applyWebhooksConf();
         
         std::string TAG;
-        int m_nHttpPort;
         int m_nThreadsForScripts;
         int m_nMaxDequeWebhooks;
         int m_nSleepBetweenRunScriptsInSec;

@@ -10,7 +10,6 @@
  
 Config::Config(const std::string &sWorkspaceDir) {
     TAG = "Config";
-    m_nHttpPort = 8080;
     m_sWorkspaceDir = sWorkspaceDir;
     m_nThreadsForScripts = 1;
     m_nMaxDequeWebhooks = 100;
@@ -33,13 +32,6 @@ bool Config::applyServerConf() {
         return false;
     }
     
-    m_nHttpPort = serverConf.getIntValueFromConfig("http_port", m_nHttpPort);
-    if (m_nHttpPort <= 10 || m_nHttpPort > 65536) {
-        WsjcppLog::err(TAG, sConfigFile + ": wrong http_port (expected value od 11..65535)");
-        return false;
-    }
-    WsjcppLog::info(TAG, "http_port: " + std::to_string(m_nHttpPort));
-
     m_nThreadsForScripts = serverConf.getIntValueFromConfig("threads_for_scripts", m_nThreadsForScripts);
     if (m_nThreadsForScripts <= 0 || m_nThreadsForScripts > 10) {
         WsjcppLog::err(TAG, sConfigFile + ": wrong threads_for_scripts");
@@ -166,12 +158,6 @@ bool Config::applyConfig() {
 
 const std::vector<Webhook> &Config::webhooksConf() {
     return m_vWebhooksConf;
-}
-
-// ---------------------------------------------------------------------
-
-int Config::httpPort() {
-    return m_nHttpPort;
 }
 
 // ---------------------------------------------------------------------

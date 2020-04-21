@@ -21,6 +21,7 @@
 #include <limits.h>
 #include <deque_webhooks.h>
 #include <wsjcpp_core.h>
+#include <wsjcpp_yaml.h>
 
 LightHttpServer g_httpServer;
 std::vector<ScriptsThread *> g_vThreads;
@@ -80,6 +81,18 @@ int main(int argc, char* argv[]) {
     WsjcppLog::setLogDirectory(sLogDir);
     std::cout << "Logger: '" + sWorkspace + "/logs/' \n";
     WsjcppLog::info(TAG, "Version: " + std::string(sAppVersion));
+   
+    std::string sConfigFile = sWorkspace + "/webhook-handler-conf.yml";
+    WsjcppYaml yamlConfig;
+    if (!yamlConfig.loadFromFile(sConfigFile)) {
+       return -1;
+    }
+    std::string sServerPort = yamlConfig["server"]["port"].getValue(); 
+    int nServerPort = std::atoi(sServerPort.c_str()); 
+    if (nServerPort <= 10 || nServerPort > 65536) {
+        WsjcppLog::err(TAG, sConfigFile + ": wrong server port (expected value od 11..65535)");
+        return -1;
+    }
 
     Config *pConfig = new Config(sWorkspace);
     if (!pConfig->applyConfig()) {
@@ -102,10 +115,10 @@ int main(int argc, char* argv[]) {
             g_vThreads.push_back(thr);
         }
 
-        WsjcppLog::ok(TAG, "Start web-server on " + std::to_string(pConfig->httpPort()));
+        WsjcppLog::ok(TAG, "Start web-server on " + std::to_string(nServerPort));
         g_httpServer.handlers()->add((LightHttpHandlerBase *) new HttpHandlerWebhooks(pConfig, pDequeWebhooks));
         // pConfig->setStorage(new RamStorage(pConfig->scoreboard())); // replace storage to ram for tests
-        g_httpServer.start(pConfig->httpPort()); // will be block thread
+        g_httpServer.start(nServerPort); // will be block thread
 
         // TODO: stop all threads
         /*while(1) {
