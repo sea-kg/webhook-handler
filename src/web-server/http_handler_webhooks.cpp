@@ -4,14 +4,12 @@
 #include <regex>
 #include <algorithm>
 #include <time.h>
-#include <light_http_request.h>
-#include <light_http_response.h>
 #include <wsjcpp_core.h>
 
 // ----------------------------------------------------------------------
 
-HttpHandlerWebhooks::HttpHandlerWebhooks(Config *pConfig, DequeWebhooks *pDequeWebhooks) 
-    : LightHttpHandlerBase("webhooks") {
+HttpHandlerWebhooks::HttpHandlerWebhooks(WebhookHandlerConfig *pConfig, DequeWebhooks *pDequeWebhooks) 
+    : WsjcppLightWebHttpHandlerBase("webhooks") {
 
     m_pConfig = pConfig;    
     m_pDequeWebhooks = pDequeWebhooks;
@@ -27,19 +25,19 @@ HttpHandlerWebhooks::HttpHandlerWebhooks(Config *pConfig, DequeWebhooks *pDequeW
 
 // ----------------------------------------------------------------------
 
-bool HttpHandlerWebhooks::canHandle(const std::string &sWorkerId, LightHttpRequest *pRequest) {
+bool HttpHandlerWebhooks::canHandle(const std::string &sWorkerId, WsjcppLightWebHttpRequest *pRequest) {
     // std::string _tag = TAG + "-" + sWorkerId;
-    std::string sPath = pRequest->requestPath();
+    std::string sPath = pRequest->getRequestPath();
     std::map<std::string,std::string>::iterator it;
     return m_mapWebhooksPaths.find(sPath) != m_mapWebhooksPaths.end();
 }
 
 // ----------------------------------------------------------------------
 
-bool HttpHandlerWebhooks::handle(const std::string &sWorkerId, LightHttpRequest *pRequest){
+bool HttpHandlerWebhooks::handle(const std::string &sWorkerId, WsjcppLightWebHttpRequest *pRequest){
     std::string _tag = TAG + "-" + sWorkerId;
-    LightHttpResponse response(pRequest->sockFd());
-    std::string sPath = pRequest->requestPath();
+    WsjcppLightWebHttpResponse response(pRequest->getSockFd());
+    std::string sPath = pRequest->getRequestPath();
     
     std::map<std::string,std::string>::iterator it;
     it = m_mapWebhooksPaths.find(sPath);

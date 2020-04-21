@@ -14,25 +14,15 @@
 #include <thread>
 #include <algorithm>
 #include <scripts_thread.h>
-#include <light_http_server.h>
 #include <http_handler_webhooks.h>
 #include <help_parse_args.h>
 #include <unistd.h>
 #include <limits.h>
 #include <deque_webhooks.h>
 #include <wsjcpp_core.h>
-#include <wsjcpp_yaml.h>
 
-LightHttpServer g_httpServer;
+// TODO redesign to employScripts
 std::vector<ScriptsThread *> g_vThreads;
-
-// ---------------------------------------------------------------------
-
-void quitApp(int signum) {
-  std::cout << std::endl << "Terminating server by signal " << signum << std::endl;
-  g_httpServer.stop();
-  exit(1);
-}
 
 // ---------------------------------------------------------------------
 
@@ -81,65 +71,34 @@ int main(int argc, char* argv[]) {
     WsjcppLog::setLogDirectory(sLogDir);
     std::cout << "Logger: '" + sWorkspace + "/logs/' \n";
     WsjcppLog::info(TAG, "Version: " + std::string(sAppVersion));
-   
-    std::string sConfigFile = sWorkspace + "/webhook-handler-conf.yml";
-    WsjcppYaml yamlConfig;
-    if (!yamlConfig.loadFromFile(sConfigFile)) {
-       return -1;
-    }
-
-    std::string sServerPort = yamlConfig["server"]["port"].getValue(); 
-    int nServerPort = std::atoi(sServerPort.c_str()); 
-    if (nServerPort <= 10 || nServerPort > 65536) {
-        WsjcppLog::err(TAG, sConfigFile + ": wrong server port (expected value od 11..65535)");
-        return -1;
-    }
-
-    std::string sMaxDeque = yamlConfig["server"]["max-deque"].getValue();
-    int nMaxDeque = std::atoi(sMaxDeque.c_str());
-    if (nMaxDeque <= 10 || nMaxDeque > 1000) {
-        WsjcppLog::err(TAG, sConfigFile + ": wrong server max-deque (expected value od 10..1000)");
-        return -1;
-    }
-
-    std::string sMaxScriptThreads = yamlConfig["server"]["max-script-threads"].getValue();
-    int nMaxScriptThreads = std::atoi(sMaxScriptThreads.c_str());
-    if (nMaxScriptThreads < 1 || nMaxScriptThreads > 100) {
-        WsjcppLog::err(TAG, sConfigFile + ": wrong server max-script-threads (expected value od 1..100)");
-        return -1;
-    }
-
-    std::string sWaitSecondsBetweenRunScripts = yamlConfig["server"]["wait-seconds-between-run-scripts"].getValue();
-    int nWaitSecondsBetweenRunScripts = std::atoi(sWaitSecondsBetweenRunScripts.c_str());
-    if (nWaitSecondsBetweenRunScripts < 1 || nWaitSecondsBetweenRunScripts > 100) {
-        WsjcppLog::err(TAG, sConfigFile + ": wrong server wait-seconds-between-run-scripts (expected value od 1..100)");
-        return -1;
-    }
     
-    Config *pConfig = new Config(sWorkspace);
+    WebhookHandlerConfig *pConfig = new WebhookHandlerConfig(sWorkspace);
     if (!pConfig->applyConfig()) {
         WsjcppLog::err(TAG, "Could not read config");
         return -1;
     }
 
-    // configure http handlers
-
-    signal( SIGINT, quitApp );
-    signal( SIGTERM, quitApp );
-
     if (helpParseArgs.has("start")) {
         WsjcppLog::info(TAG, "Starting...");
-        DequeWebhooks *pDequeWebhooks = new DequeWebhooks(nMaxDeque);
+        DequeWebhooks *pDequeWebhooks = new DequeWebhooks(pConfig->getMaxDeque());
 
-        for (int i = 0; i < nMaxScriptThreads; i++) {
-            ScriptsThread *thr = new ScriptsThread(pConfig, nWaitSecondsBetweenRunScripts, i, pDequeWebhooks);
+        for (int i = 0; i < pConfig->getMaxScriptThreads(); i++) {
+            ScriptsThread *thr = new ScriptsThread(
+                pConfig, 
+                pConfig->getWaitSecondsBetweenRunScripts(), 
+                i, 
+                pDequeWebhooks
+            );
             thr->start();
             g_vThreads.push_back(thr);
         }
 
-        WsjcppLog::ok(TAG, "Start web-server on " + std::to_string(nServerPort));
-        g_httpServer.handlers()->add((LightHttpHandlerBase *) new HttpHandlerWebhooks(pConfig, pDequeWebhooks));
-        g_httpServer.start(nServerPort); // will be block thread
+        WsjcppLog::ok(TAG, "Start web-server on " + std::to_string(pConfig->getServerPort()));
+        WsjcppLightWebServer webServer;
+        webServer.setPort(pConfig->getServerPort());
+        webServer.setMaxWorkers(1);
+        webServer.addHandler(new HttpHandlerWebhooks(pConfig, pDequeWebhooks));
+        webServer.startSync();
 
         // TODO: stop all threads
         /*while(1) {

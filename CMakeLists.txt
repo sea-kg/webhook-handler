@@ -16,7 +16,6 @@ set(EXECUTABLE_OUTPUT_PATH ${webhook-handler_SOURCE_DIR})
 # include header dirs
 list (APPEND WSJCPP_INCLUDE_DIRS "src")
 list (APPEND WSJCPP_INCLUDE_DIRS "src/scripts")
-list (APPEND WSJCPP_INCLUDE_DIRS "src/config")
 list (APPEND WSJCPP_INCLUDE_DIRS "src/utils")
 list (APPEND WSJCPP_INCLUDE_DIRS "src/interfaces")
 list (APPEND WSJCPP_INCLUDE_DIRS "src/web-server")
@@ -40,32 +39,13 @@ list (APPEND WSJCPP_SOURCES "src/scripts/scripts_thread.cpp")
 list (APPEND WSJCPP_SOURCES "src/scripts/deque_webhooks.h")
 list (APPEND WSJCPP_SOURCES "src/scripts/deque_webhooks.cpp")
 
-# config
-list (APPEND WSJCPP_SOURCES "src/config/config.h")
-list (APPEND WSJCPP_SOURCES "src/config/config.cpp")
-list (APPEND WSJCPP_SOURCES "src/config/webhook.h")
-list (APPEND WSJCPP_SOURCES "src/config/webhook.cpp")
-
-
 # web-server
-list (APPEND WSJCPP_SOURCES "src/web-server/core/light_http_deque_requests.h")
-list (APPEND WSJCPP_SOURCES "src/web-server/core/light_http_deque_requests.cpp")
-list (APPEND WSJCPP_SOURCES "src/web-server/core/light_http_handler_base.h")
-list (APPEND WSJCPP_SOURCES "src/web-server/core/light_http_handler_base.cpp")
-list (APPEND WSJCPP_SOURCES "src/web-server/core/light_http_handlers.h")
-list (APPEND WSJCPP_SOURCES "src/web-server/core/light_http_handlers.cpp")
-list (APPEND WSJCPP_SOURCES "src/web-server/core/light_http_request.h")
-list (APPEND WSJCPP_SOURCES "src/web-server/core/light_http_request.cpp")
-list (APPEND WSJCPP_SOURCES "src/web-server/core/light_http_response.h")
-list (APPEND WSJCPP_SOURCES "src/web-server/core/light_http_response.cpp")
-list (APPEND WSJCPP_SOURCES "src/web-server/core/light_http_server.h")
-list (APPEND WSJCPP_SOURCES "src/web-server/core/light_http_server.cpp")
-list (APPEND WSJCPP_SOURCES "src/web-server/core/light_http_thread_worker.h")
-list (APPEND WSJCPP_SOURCES "src/web-server/core/light_http_thread_worker.cpp")
 list (APPEND WSJCPP_SOURCES "src/web-server/http_handler_webhooks.h")
 list (APPEND WSJCPP_SOURCES "src/web-server/http_handler_webhooks.cpp")
 
 # main
+list (APPEND WSJCPP_SOURCES "src/webhook_handler_config.h")
+list (APPEND WSJCPP_SOURCES "src/webhook_handler_config.cpp")
 list (APPEND WSJCPP_SOURCES "src/main.cpp")
 
 # CURL

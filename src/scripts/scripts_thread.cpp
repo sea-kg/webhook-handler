@@ -18,7 +18,7 @@
 // ---------------------------------------------------------------------
 
 ScriptsThread::ScriptsThread(
-    Config *pConfig, 
+    WebhookHandlerConfig *pConfig, 
     int nWaitSecondsBetweenRunScripts,
     int nNumber,
     DequeWebhooks *pDequeWebhooks
