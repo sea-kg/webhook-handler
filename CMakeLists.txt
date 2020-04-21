@@ -28,8 +28,6 @@ list (APPEND WSJCPP_SOURCES "src/3rd_party/HowardHinnant/date/date.h")
 
 # utils
 list (APPEND WSJCPP_SOURCES "src/utils/colormod.h")
-list (APPEND WSJCPP_SOURCES "src/utils/ts.h")
-list (APPEND WSJCPP_SOURCES "src/utils/ts.cpp")
 list (APPEND WSJCPP_SOURCES "src/utils/help_parse_args.h")
 list (APPEND WSJCPP_SOURCES "src/utils/help_parse_args.cpp")
 list (APPEND WSJCPP_SOURCES "src/utils/logger.h")

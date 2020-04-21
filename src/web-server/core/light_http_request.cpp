@@ -9,7 +9,6 @@
 #include <regex>        // regex, sregex_token_iterator
 #include <stdio.h>
 #include <math.h>
-#include <ts.h>
 #include <light_http_response.h>
 #include <wsjcpp_core.h>
 
@@ -22,8 +21,8 @@ LightHttpRequest::LightHttpRequest(int nSockFd, const std::string &sAddress) {
 	m_sRequest = "";
 	m_nParserState = EnumParserState::START;
 	TAG = "LightHttpRequest";
-	long nSec = TS::currentTime_seconds();
-	m_sLastModified = TS::formatTimeForWeb(nSec);
+	long nSec = WsjcppCore::currentTime_seconds();
+	m_sLastModified = WsjcppCore::formatTimeForWeb(nSec);
 	m_nContentLength = 0;
 }
 

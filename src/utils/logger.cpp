@@ -6,7 +6,7 @@
 #include <thread>
 #include <stdio.h>
 #include <sstream>
-#include <ts.h>
+#include <wsjcpp_core.h>
 
 // Last log messages
 std::mutex *g_LOG_MUTEX = NULL;
@@ -58,11 +58,11 @@ long Log::g_LOG_START_TIME = 0;
 // ---------------------------------------------------------------------
 
 void Log::logRotate_updateFilename() {
-    long t = TS::currentTime_seconds();
+    long t = WsjcppCore::currentTime_seconds();
     // rotate log if started now or if time left more then 10 min
     if (g_LOG_START_TIME == 0 || t - g_LOG_START_TIME > 600) {
         g_LOG_START_TIME = t;
-        g_LOG_FILE = g_LOG_DIR + "/mecd_" + TS::formatTimeForFilename(g_LOG_START_TIME) + ".log";
+        g_LOG_FILE = g_LOG_DIR + "/mecd_" + WsjcppCore::formatTimeForFilename(g_LOG_START_TIME) + ".log";
     }
 }
 
@@ -91,7 +91,7 @@ void Log::add(Color::Modifier clr, const std::string &sType, const std::string &
     std::lock_guard<std::mutex> lock(*g_LOG_MUTEX);
 
     Color::Modifier def(Color::FG_DEFAULT);
-    std::string sLogMessage = TS::currentTime_logformat() + ", " + Log::threadId() + " [" + sType + "] " + sTag + ": " + sMessage;
+    std::string sLogMessage = WsjcppCore::currentTime_logformat() + ", " + Log::threadId() + " [" + sType + "] " + sTag + ": " + sMessage;
     std::cout << clr << sLogMessage << def << std::endl;
 
     std::ofstream logFile(g_LOG_FILE, std::ios::app);

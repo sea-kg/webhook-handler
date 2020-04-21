@@ -9,7 +9,7 @@
 #include <regex>        // regex, sregex_token_iterator
 #include <stdio.h>
 #include <math.h>
-#include <ts.h>
+#include <wsjcpp_core.h>
 
 // ----------------------------------------------------------------------
 // LightHttpResponse
@@ -44,8 +44,8 @@ LightHttpResponse::LightHttpResponse(int nSockFd) {
     m_nSockFd = nSockFd;
 	m_bClosed = false;
 	noCache();
-	long nSec = TS::currentTime_seconds();
-	m_sLastModified = TS::formatTimeForWeb(nSec);
+	long nSec = WsjcppCore::currentTime_seconds();
+	m_sLastModified = WsjcppCore::formatTimeForWeb(nSec);
     m_nResponseCode = 500;
     m_sDataType = "text/html";
 }
