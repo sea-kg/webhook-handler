@@ -15,6 +15,7 @@ webhook-handlers:
       - "docker pull some/docker"
       - "docker-compose restart"
   nodejs_example_rebuild:
+    webhook-path: "/wh/eSdR93Sq1w"
     folder: "nodejs_example_rebuild"
     user: www-data
     timeout-command: 600

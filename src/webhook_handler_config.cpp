@@ -99,6 +99,8 @@ bool WebhookHandlerConfig::applyWebhooksConf() {
         WsjcppLog::err(TAG, "Directory " + sConfDir + " not exists");
         return false;
     }
+
+
     WsjcppLog::info(TAG, "Search webhook.conf");
 
     std::vector<std::string> vListOfWebhooks = WsjcppCore::listOfDirs(sConfDir);
@@ -216,10 +218,28 @@ bool WebhookHandlerConfig::applyConfig() {
         return -1;
     }
 
+    WsjcppYamlItem *pHandlers = m_pYamlConfig->getRoot()->getElement("webhook-handlers");
+    std::vector<std::string> vKeys = pHandlers->getKeys();
+    for (int i = 0; i < vKeys.size(); i++) {
+        std::string sName = vKeys[i];
+        WsjcppYamlItem *pWebhookConf = pHandlers->getElement(sName);
+        std::string sWebhookPath = pWebhookConf->getElement("webhook-path")->getValue();
+        Webhook _webhookConf;
+        _webhookConf.setId(sWebhookPath);
+        // _webhookConf.setScriptPath(sScriptPath);
+        // _webhookConf.setScriptDir(sWebhookScriptDir);
+        // _webhookConf.setEnabled(bWebhookEnable);
+        // _webhookConf.setScriptWaitInSec(nScritpWait);
+        // m_vWebhooksConf.push_back(_webhookConf);
+        
+        //WsjcppLog::info(TAG, );
+    }
+
     // apply the server config
     if (!this->applyWebhooksConf()) {
         return false;
     }
+
 
     return bResult;
 }
