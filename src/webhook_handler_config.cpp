@@ -11,7 +11,6 @@
 
 Webhook::Webhook(){
     m_nScriptWaitInSec = 10;
-    m_bEnabled = true;
 }
 
 // ----------------------------------------------------------------------
@@ -48,18 +47,6 @@ void Webhook::setScriptDir(const std::string &sScriptDir) {
 
 std::string Webhook::scriptDir() const {
     return m_sScriptDir;
-}
-
-// ----------------------------------------------------------------------
-
-void Webhook::setEnabled(bool bEnabled){
-    m_bEnabled = bEnabled;
-}
-
-// ----------------------------------------------------------------------
-
-bool Webhook::isEnabled() const {
-    return m_bEnabled;
 }
 
 // ----------------------------------------------------------------------
@@ -165,7 +152,6 @@ bool WebhookHandlerConfig::applyWebhooksConf() {
         _webhookConf.setWebhookUrlPath("/wh/" + sWebhookId);
         _webhookConf.setScriptPath(sScriptPath);
         _webhookConf.setScriptDir(sWebhookScriptDir);
-        _webhookConf.setEnabled(bWebhookEnable);
         _webhookConf.setScriptWaitInSec(nScritpWait);
         m_vWebhooksConf.push_back(_webhookConf);
 
@@ -224,11 +210,24 @@ bool WebhookHandlerConfig::applyConfig() {
         std::string sName = vKeys[i];
         WsjcppYamlItem *pWebhookConf = pHandlers->getElement(sName);
         std::string sWebhookUrlPath = pWebhookConf->getElement("webhook-url-path")->getValue();
+        bool bEnabled = true;
+
+        if (pWebhookConf->hasElement("enabled")) {
+            std::string sEnabled = pWebhookConf->getElement("enabled")->getValue();
+            if (sEnabled == "no" || sEnabled == "false") {
+                bEnabled = false;
+            }
+        }
+
+        if (!bEnabled) {
+            WsjcppLog::info(TAG, "Webhook '" + sName + "' disbaled");
+            continue;
+        }
+
         Webhook _webhookConf;
         _webhookConf.setWebhookUrlPath(sWebhookUrlPath);
         // _webhookConf.setScriptPath(sScriptPath);
         // _webhookConf.setScriptDir(sWebhookScriptDir);
-        // _webhookConf.setEnabled(bWebhookEnable);
         // _webhookConf.setScriptWaitInSec(nScritpWait);
         // m_vWebhooksConf.push_back(_webhookConf);
         

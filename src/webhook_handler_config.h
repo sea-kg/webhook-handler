@@ -18,14 +18,10 @@ class Webhook {
         void setScriptDir(const std::string &sScriptDir);
         std::string scriptDir() const;
 
-        void setEnabled(bool bEnabled);
-        bool isEnabled() const;
-
         void setScriptWaitInSec(int nSec);
         int scriptWaitInSec() const;
 
     private:
-        bool m_bEnabled;
         int m_nScriptWaitInSec;
         std::string m_sID;
         std::string m_sWebhookUrlPath;
