@@ -22,9 +22,6 @@ list (APPEND WSJCPP_INCLUDE_DIRS "src/web-server")
 list (APPEND WSJCPP_INCLUDE_DIRS "src/web-server/core")
 list (APPEND WSJCPP_INCLUDE_DIRS "src/3rd_party/HowardHinnant/date")
 
-# HowardHinnant/date
-list (APPEND WSJCPP_SOURCES "src/3rd_party/HowardHinnant/date/date.h")
-
 # utils
 list (APPEND WSJCPP_SOURCES "src/utils/help_parse_args.h")
 list (APPEND WSJCPP_SOURCES "src/utils/help_parse_args.cpp")

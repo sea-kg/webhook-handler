@@ -48,4 +48,8 @@ list (APPEND WSJCPP_INCLUDE_DIRS "./src.wsjcpp/wsjcpp_yaml/")
 list (APPEND WSJCPP_SOURCES "./src.wsjcpp/wsjcpp_yaml/wsjcpp_yaml.cpp")
 list (APPEND WSJCPP_SOURCES "./src.wsjcpp/wsjcpp_yaml/wsjcpp_yaml.h")
 
+# HowardHinnant/date:v2.4.1
+list (APPEND WSJCPP_INCLUDE_DIRS "./src.wsjcpp/HowardHinnant_date/")
+list (APPEND WSJCPP_SOURCES "./src.wsjcpp/HowardHinnant_date/date.h")
+
 
