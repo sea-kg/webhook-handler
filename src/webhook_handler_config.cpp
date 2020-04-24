@@ -16,14 +16,14 @@ Webhook::Webhook(){
 
 // ----------------------------------------------------------------------
 
-void Webhook::setId(const std::string &sWebhookID){
-    m_sID = sWebhookID;
+void Webhook::setWebhookUrlPath(const std::string &sWebhookUrlPath) {
+    m_sWebhookUrlPath = sWebhookUrlPath;
 }
 
 // ----------------------------------------------------------------------
 
-std::string Webhook::id() const {
-    return m_sID;
+std::string Webhook::getWebhookUrlPath() const {
+    return m_sWebhookUrlPath;
 }
 
 // ----------------------------------------------------------------------
@@ -154,7 +154,7 @@ bool WebhookHandlerConfig::applyWebhooksConf() {
         }
         
         for (unsigned int i = 0; i < m_vWebhooksConf.size(); i++) {
-            if (m_vWebhooksConf[i].id() == sWebhookId) {
+            if (m_vWebhooksConf[i].getWebhookUrlPath() == "/wh/" + sWebhookId) {
                 WsjcppLog::err(TAG, "Already registered webhook " + sWebhookId);
                 return false;
             }
@@ -162,7 +162,7 @@ bool WebhookHandlerConfig::applyWebhooksConf() {
 
         // default values of service config
         Webhook _webhookConf;
-        _webhookConf.setId(sWebhookId);
+        _webhookConf.setWebhookUrlPath("/wh/" + sWebhookId);
         _webhookConf.setScriptPath(sScriptPath);
         _webhookConf.setScriptDir(sWebhookScriptDir);
         _webhookConf.setEnabled(bWebhookEnable);
@@ -223,9 +223,9 @@ bool WebhookHandlerConfig::applyConfig() {
     for (int i = 0; i < vKeys.size(); i++) {
         std::string sName = vKeys[i];
         WsjcppYamlItem *pWebhookConf = pHandlers->getElement(sName);
-        std::string sWebhookPath = pWebhookConf->getElement("webhook-path")->getValue();
+        std::string sWebhookUrlPath = pWebhookConf->getElement("webhook-url-path")->getValue();
         Webhook _webhookConf;
-        _webhookConf.setId(sWebhookPath);
+        _webhookConf.setWebhookUrlPath(sWebhookUrlPath);
         // _webhookConf.setScriptPath(sScriptPath);
         // _webhookConf.setScriptDir(sWebhookScriptDir);
         // _webhookConf.setEnabled(bWebhookEnable);

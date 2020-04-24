@@ -8,9 +8,9 @@
 class Webhook {
     public:
         Webhook();
-        
-        void setId(const std::string &sId);
-        std::string id() const;
+
+        void setWebhookUrlPath(const std::string &sWebhookUrlPath);
+        std::string getWebhookUrlPath() const;
 
         void setScriptPath(const std::string &sScriptPath);
         std::string scriptPath() const;
@@ -28,6 +28,7 @@ class Webhook {
         bool m_bEnabled;
         int m_nScriptWaitInSec;
         std::string m_sID;
+        std::string m_sWebhookUrlPath;
         std::string m_sScriptPath;
         std::string m_sScriptDir;
         

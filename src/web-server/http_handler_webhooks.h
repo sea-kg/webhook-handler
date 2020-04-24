@@ -17,7 +17,7 @@ class HttpHandlerWebhooks : public WsjcppLightWebHttpHandlerBase {
 
         WebhookHandlerConfig *m_pConfig;
         DequeWebhooks *m_pDequeWebhooks;
-        std::map<std::string, std::string> m_mapWebhooksPaths;
+        std::map<std::string, Webhook> m_mapWebhooksPaths;
         std::vector<Webhook> m_vWebhooks;
         nlohmann::json m_jsonGame;
         nlohmann::json m_jsonTeams; // prepare data for list of teams

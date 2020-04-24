@@ -18,7 +18,7 @@ HttpHandlerWebhooks::HttpHandlerWebhooks(WebhookHandlerConfig *pConfig, DequeWeb
     int nCount = m_pConfig->webhooksConf().size();
     for (int i = 0; i < nCount; i++) {
         Webhook wh = m_pConfig->webhooksConf()[i];
-        m_mapWebhooksPaths["/wh/" + wh.id()] = wh.id(); 
+        m_mapWebhooksPaths[wh.getWebhookUrlPath()] = wh; 
         m_vWebhooks.push_back(wh);
     }
 }
@@ -28,7 +28,7 @@ HttpHandlerWebhooks::HttpHandlerWebhooks(WebhookHandlerConfig *pConfig, DequeWeb
 bool HttpHandlerWebhooks::canHandle(const std::string &sWorkerId, WsjcppLightWebHttpRequest *pRequest) {
     // std::string _tag = TAG + "-" + sWorkerId;
     std::string sPath = pRequest->getRequestPath();
-    std::map<std::string,std::string>::iterator it;
+    std::map<std::string,Webhook>::iterator it;
     return m_mapWebhooksPaths.find(sPath) != m_mapWebhooksPaths.end();
 }
 
@@ -38,15 +38,9 @@ bool HttpHandlerWebhooks::handle(const std::string &sWorkerId, WsjcppLightWebHtt
     std::string _tag = TAG + "-" + sWorkerId;
     WsjcppLightWebHttpResponse response(pRequest->getSockFd());
     std::string sPath = pRequest->getRequestPath();
-    
-    std::map<std::string,std::string>::iterator it;
-    it = m_mapWebhooksPaths.find(sPath);
-    if (it != m_mapWebhooksPaths.end()) {
-        m_pDequeWebhooks->pushWebhookId(it->second);
-        response.ok().sendText("OK");
-        return true;
-    }
-    return false;
+    m_pDequeWebhooks->pushWebhookId(sPath);
+    response.ok().sendText("OK");
+    return true;
 }
 
 // ----------------------------------------------------------------------

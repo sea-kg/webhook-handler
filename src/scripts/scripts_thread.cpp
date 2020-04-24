@@ -126,7 +126,7 @@ void ScriptsThread::run() {
         Webhook webhook;
         bool bFound = false;
         for (int i = 0; i < nSize; i++) {
-            if (m_pConfig->webhooksConf()[i].id() == sWebhookId) {
+            if (m_pConfig->webhooksConf()[i].getWebhookUrlPath() == sWebhookId) {
                 bFound = true;
                 webhook = m_pConfig->webhooksConf()[i];
             };
