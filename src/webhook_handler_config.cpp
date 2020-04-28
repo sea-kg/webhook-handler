@@ -209,8 +209,22 @@ bool WebhookHandlerConfig::applyConfig() {
     for (int i = 0; i < vKeys.size(); i++) {
         std::string sName = vKeys[i];
         WsjcppYamlItem *pWebhookConf = pHandlers->getElement(sName);
-        std::string sWebhookUrlPath = pWebhookConf->getElement("webhook-url-path")->getValue();
+        std::vector<std::string> vWebhookKeys = pWebhookConf->getKeys();
+
         bool bEnabled = true;
+        for (int i = 0; i < vWebhookKeys.size(); i++) {
+            std::string sWebhookParamName = vWebhookKeys[i];
+            if (sWebhookParamName == "enabled") {
+                std::string sEnabled = pWebhookConf->getElement("enabled")->getValue();
+                if (sEnabled == "no" || sEnabled == "false") {
+                    bEnabled = false;
+                }
+            } else {
+                WsjcppLog::warn(TAG, "Unknown key: '" + sWebhookParamName + "', in " + pWebhookConf->getElement(sWebhookParamName)->getForLogFormat());
+            }
+        }
+
+        std::string sWebhookUrlPath = pWebhookConf->getElement("webhook-url-path")->getValue();
 
         if (pWebhookConf->hasElement("enabled")) {
             std::string sEnabled = pWebhookConf->getElement("enabled")->getValue();
@@ -224,8 +238,11 @@ bool WebhookHandlerConfig::applyConfig() {
             continue;
         }
 
+        // TODO user
         Webhook _webhookConf;
         _webhookConf.setWebhookUrlPath(sWebhookUrlPath);
+        std::string sEnabled = pWebhookConf->getElement("work-dir")->getValue();
+
         // _webhookConf.setScriptPath(sScriptPath);
         // _webhookConf.setScriptDir(sWebhookScriptDir);
         // _webhookConf.setScriptWaitInSec(nScritpWait);

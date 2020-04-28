@@ -4,6 +4,7 @@ webhook-handler
 tmp/*
 .wsjcpp/*
 data/logs/*.log
+.DS_Store
 
 # Prerequisites
 # *.d
