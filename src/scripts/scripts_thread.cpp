@@ -138,9 +138,9 @@ void ScriptsThread::run() {
 
         std::chrono::time_point<std::chrono::system_clock> start, end;
         start = std::chrono::system_clock::now();
-
-        DoRunScript process(webhook.scriptDir(), webhook.scriptPath());
-        process.start(webhook.scriptWaitInSec()*1000);
+        
+        DoRunScript process(webhook.getWorkDir(), webhook.getCommands()[0]);
+        process.start(webhook.getTimeoutCommand()*1000);
 
         if (process.isTimeout()) {
             WsjcppLog::err(TAG, "Finished by timeout " + sWebhookId);

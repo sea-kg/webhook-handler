@@ -5,9 +5,7 @@
 #include <date.h>
 #include <iostream>
 #include <sstream>
-#include <conf_file_parser.h>
 #include <wsjcpp_core.h>
- 
 
 Webhook::Webhook(){
     m_nScriptWaitInSec = 10;
@@ -27,31 +25,34 @@ std::string Webhook::getWebhookUrlPath() const {
 
 // ----------------------------------------------------------------------
 
-void Webhook::setScriptPath(const std::string &sScriptPath){
-    m_sScriptPath = sScriptPath;
+void Webhook::setWorkDir(const std::string &sWorkDir) {
+    m_sWorkDir = sWorkDir;
 }
 
 // ----------------------------------------------------------------------
 
-std::string Webhook::scriptPath() const {
-    return m_sScriptPath;
+std::string Webhook::getWorkDir() const {
+    return m_sWorkDir;
 }
 
 // ----------------------------------------------------------------------
 
-void Webhook::setScriptDir(const std::string &sScriptDir) {
-    m_sScriptDir = sScriptDir;
+void Webhook::setCommands(const std::vector<std::string> &vCommands) {
+    for (int i = 0; i < vCommands.size(); i++) {
+        m_vCommands.push_back(vCommands[i]);
+    }
+    
 }
 
 // ----------------------------------------------------------------------
 
-std::string Webhook::scriptDir() const {
-    return m_sScriptDir;
+const std::vector<std::string> &Webhook::getCommands() const {
+    return m_vCommands;
 }
 
 // ----------------------------------------------------------------------
 
-void Webhook::setScriptWaitInSec(int nSec){
+void Webhook::setTimeoutCommand(int nSec){
     m_nScriptWaitInSec = nSec;
     if(m_nScriptWaitInSec < 1){
         m_nScriptWaitInSec = 10;
@@ -60,7 +61,7 @@ void Webhook::setScriptWaitInSec(int nSec){
 
 // ----------------------------------------------------------------------
 
-int Webhook::scriptWaitInSec() const {
+int Webhook::getTimeoutCommand() const {
     return m_nScriptWaitInSec;
 }
 
@@ -76,94 +77,6 @@ WebhookHandlerConfig::WebhookHandlerConfig(const std::string &sWorkspaceDir) {
     m_nMaxDeque = 0;
     m_nMaxScriptThreads = 0;
     m_nWaitSecondsBetweenRunScripts = 0;
-}
-
-// ---------------------------------------------------------------------
-
-bool WebhookHandlerConfig::applyWebhooksConf() {
-    std::string sConfDir = m_sWorkspaceDir + "/conf.d/";
-    if (!WsjcppCore::dirExists(sConfDir)) {
-        WsjcppLog::err(TAG, "Directory " + sConfDir + " not exists");
-        return false;
-    }
-
-
-    WsjcppLog::info(TAG, "Search webhook.conf");
-
-    std::vector<std::string> vListOfWebhooks = WsjcppCore::listOfDirs(sConfDir);
-    if (vListOfWebhooks.size() == 0) {
-        WsjcppLog::err(TAG, "Folders with webhooks does not found in " + sConfDir);
-        return false;
-    }
-
-    for (int i = 0; i < vListOfWebhooks.size(); i++) {
-        std::string sFolder = vListOfWebhooks[i];
-        std::string sWebhookScriptDir = sConfDir + sFolder + "/";
-        std::string sWebhookConfPath =  sWebhookScriptDir + "/webhook.conf";
-        WsjcppLog::info(TAG, "Reading " + sWebhookConfPath);
-        if (!WsjcppCore::fileExists(sWebhookConfPath)) {
-            WsjcppLog::err(TAG, "File " + sWebhookConfPath + " not exists");
-            return false;
-        }
-        ConfFileParser serviceConf = ConfFileParser(sWebhookConfPath);
-        if (!serviceConf.parseConfig()) {
-            WsjcppLog::err(TAG, "Could not parse " + sWebhookConfPath);
-            return false;
-        }
-
-        std::string sWebhookId = serviceConf.getStringValueFromConfig("id", "");
-        WsjcppLog::info(TAG, "id = " + sWebhookId);
-
-        bool bWebhookEnable 
-            = serviceConf.getBoolValueFromConfig("enabled", false);
-        WsjcppLog::info(TAG, "enabled = " + std::string(bWebhookEnable ? "yes" : "no"));
-
-        std::string sScriptPath = serviceConf.getStringValueFromConfig("script_path", "");
-        WsjcppLog::info(TAG, "script_path = " + sScriptPath);
-        
-        // Log::info(TAG, "sWebhookScriptDir: " + sWebhookScriptDir);
-        if (!WsjcppCore::fileExists(sWebhookScriptDir + sScriptPath)) {
-            WsjcppLog::err(TAG, "File " + sWebhookScriptDir + sScriptPath + " did not exists");
-            return false;
-        }
-
-        int nScritpWait = serviceConf.getIntValueFromConfig("script_wait_in_sec", 60);
-        WsjcppLog::info(TAG, "script_wait_in_sec = " + std::to_string(nScritpWait));
-
-        if (nScritpWait < 5) {
-            WsjcppLog::err(TAG, "Could not parse script_wait_in_sec - must be more than 4 sec ");
-            return false;
-        }
-
-        if (!bWebhookEnable) {
-            WsjcppLog::warn(TAG, "Webhook " + sFolder + " - disabled ");
-            continue;
-        }
-        
-        for (unsigned int i = 0; i < m_vWebhooksConf.size(); i++) {
-            if (m_vWebhooksConf[i].getWebhookUrlPath() == "/wh/" + sWebhookId) {
-                WsjcppLog::err(TAG, "Already registered webhook " + sWebhookId);
-                return false;
-            }
-        }
-
-        // default values of service config
-        Webhook _webhookConf;
-        _webhookConf.setWebhookUrlPath("/wh/" + sWebhookId);
-        _webhookConf.setScriptPath(sScriptPath);
-        _webhookConf.setScriptDir(sWebhookScriptDir);
-        _webhookConf.setScriptWaitInSec(nScritpWait);
-        m_vWebhooksConf.push_back(_webhookConf);
-
-        WsjcppLog::ok(TAG, "Registered webhook " + sFolder + " -> /wh/" + sWebhookId);
-    }
-
-    if (m_vWebhooksConf.size() == 0) {
-        WsjcppLog::err(TAG, "No one defined webhooks in " + sConfDir);
-        return false;
-    }
-
-    return true;
 }
 
 // ---------------------------------------------------------------------
@@ -212,24 +125,52 @@ bool WebhookHandlerConfig::applyConfig() {
         std::vector<std::string> vWebhookKeys = pWebhookConf->getKeys();
 
         bool bEnabled = true;
+        Webhook _webhookConf;
+        
         for (int i = 0; i < vWebhookKeys.size(); i++) {
             std::string sWebhookParamName = vWebhookKeys[i];
+            std::string sLogFormat = ", in " + pWebhookConf->getElement(sWebhookParamName)->getForLogFormat();
+
             if (sWebhookParamName == "enabled") {
                 std::string sEnabled = pWebhookConf->getElement("enabled")->getValue();
                 if (sEnabled == "no" || sEnabled == "false") {
                     bEnabled = false;
+                    break;
                 }
+            } else if (sWebhookParamName == "work-dir") {
+                std::string sWorkDir = pWebhookConf->getElement(sWebhookParamName)->getValue();
+                sWorkDir = WsjcppCore::doNormalizePath(m_sWorkspaceDir + "/" + sWorkDir);
+                if (!WsjcppCore::dirExists(sWorkDir)) {
+                    WsjcppLog::err(TAG, "Folder '" + sWorkDir + "' did not exists" + sLogFormat);
+                    return -1;
+                }
+                _webhookConf.setWorkDir(sWorkDir);
+            } else if (sWebhookParamName == "webhook-url-path") {
+                std::string sWebhookUrlPath = pWebhookConf->getElement(sWebhookParamName)->getValue();
+                if (sWebhookUrlPath == "") {
+                    WsjcppLog::err(TAG, "Require 'webhook-url-path' in '" + sName + "'" + sLogFormat);
+                    return -1;
+                }
+                // TODO check format sWebhookUrlPath
+                _webhookConf.setWebhookUrlPath(sWebhookUrlPath);
+            } else if (sWebhookParamName == "timeout-command") {
+                std::string sTimeoutCommand = pWebhookConf->getElement(sWebhookParamName)->getValue();
+                int nTimeoutCommand = std::atoi(sTimeoutCommand.c_str());
+                if (nTimeoutCommand < 5) {
+                    WsjcppLog::err(TAG, "Wrong value for 'timeout-command' - must be more than 4 sec " + sLogFormat);
+                    return false;
+                }
+                _webhookConf.setTimeoutCommand(nTimeoutCommand);
+            } else if (sWebhookParamName == "commands") {
+                WsjcppYamlItem *pCommands = pWebhookConf->getElement(sWebhookParamName);
+                std::vector<std::string> vCommands;
+                int nLen = pCommands->getLength();
+                for (int i = 0; i < nLen; i++) {
+                    vCommands.push_back(pCommands->getElement(i)->getValue());
+                }
+                _webhookConf.setCommands(vCommands);
             } else {
-                WsjcppLog::warn(TAG, "Unknown key: '" + sWebhookParamName + "', in " + pWebhookConf->getElement(sWebhookParamName)->getForLogFormat());
-            }
-        }
-
-        std::string sWebhookUrlPath = pWebhookConf->getElement("webhook-url-path")->getValue();
-
-        if (pWebhookConf->hasElement("enabled")) {
-            std::string sEnabled = pWebhookConf->getElement("enabled")->getValue();
-            if (sEnabled == "no" || sEnabled == "false") {
-                bEnabled = false;
+                WsjcppLog::warn(TAG, "Unknown key: '" + sWebhookParamName + "'" + sLogFormat);
             }
         }
 
@@ -238,25 +179,26 @@ bool WebhookHandlerConfig::applyConfig() {
             continue;
         }
 
+        for (unsigned int i = 0; i < m_vWebhooksConf.size(); i++) {
+            if (m_vWebhooksConf[i].getWebhookUrlPath() == _webhookConf.getWebhookUrlPath()) {
+                WsjcppLog::err(TAG, "Already registered webhook " + _webhookConf.getWebhookUrlPath());
+                return false;
+            }
+        }
+
+        if (_webhookConf.getCommands().size() == 0) {
+            WsjcppLog::err(TAG, "Must contain at least one command " + _webhookConf.getWebhookUrlPath());
+            return false;
+        }
+
         // TODO user
-        Webhook _webhookConf;
-        _webhookConf.setWebhookUrlPath(sWebhookUrlPath);
-        std::string sEnabled = pWebhookConf->getElement("work-dir")->getValue();
-
-        // _webhookConf.setScriptPath(sScriptPath);
-        // _webhookConf.setScriptDir(sWebhookScriptDir);
-        // _webhookConf.setScriptWaitInSec(nScritpWait);
-        // m_vWebhooksConf.push_back(_webhookConf);
-        
-        //WsjcppLog::info(TAG, );
+        WsjcppLog::ok(TAG, "Registered webhook: " + _webhookConf.getWebhookUrlPath());
+        m_vWebhooksConf.push_back(_webhookConf);
     }
 
-    // apply the server config
-    if (!this->applyWebhooksConf()) {
-        return false;
+    if (m_vWebhooksConf.size() == 0) {
+        WsjcppLog::err(TAG, "No configured webhooks");
     }
-
-
     return bResult;
 }
 

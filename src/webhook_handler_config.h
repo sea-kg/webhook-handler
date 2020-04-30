@@ -12,22 +12,22 @@ class Webhook {
         void setWebhookUrlPath(const std::string &sWebhookUrlPath);
         std::string getWebhookUrlPath() const;
 
-        void setScriptPath(const std::string &sScriptPath);
-        std::string scriptPath() const;
+        void setWorkDir(const std::string &sWorkDir);
+        std::string getWorkDir() const;
 
-        void setScriptDir(const std::string &sScriptDir);
-        std::string scriptDir() const;
+        void setCommands(const std::vector<std::string> &sScriptPath);
+        const std::vector<std::string> &getCommands() const;
 
-        void setScriptWaitInSec(int nSec);
-        int scriptWaitInSec() const;
+        void setTimeoutCommand(int nSec);
+        int getTimeoutCommand() const;
 
     private:
         int m_nScriptWaitInSec;
         std::string m_sID;
         std::string m_sWebhookUrlPath;
-        std::string m_sScriptPath;
-        std::string m_sScriptDir;
-        
+        std::string m_sWorkDir;
+        std::string m_sUser;
+        std::vector<std::string> m_vCommands;
 };
 
 // ---------------------------------------------------------------------
@@ -44,7 +44,6 @@ class WebhookHandlerConfig {
         const std::vector<Webhook> &webhooksConf();
 
     private:
-        bool applyWebhooksConf();
         
         std::string TAG;
         

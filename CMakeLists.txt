@@ -6,7 +6,6 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/src.wsjcpp/CMakeLists.txt)
 
 set(CMAKE_CXX_STANDARD 11)
 set(EXECUTABLE_OUTPUT_PATH ${webhook-handler_SOURCE_DIR})
-# set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
 #### BEGIN_WSJCPP_APPEND
 #### END_WSJCPP_APPEND
@@ -25,8 +24,6 @@ list (APPEND WSJCPP_INCLUDE_DIRS "src/3rd_party/HowardHinnant/date")
 # utils
 list (APPEND WSJCPP_SOURCES "src/utils/help_parse_args.h")
 list (APPEND WSJCPP_SOURCES "src/utils/help_parse_args.cpp")
-list (APPEND WSJCPP_SOURCES "src/utils/conf_file_parser.h")
-list (APPEND WSJCPP_SOURCES "src/utils/conf_file_parser.cpp")
 
 # scripts
 list (APPEND WSJCPP_SOURCES "src/scripts/dorunscript.h")
