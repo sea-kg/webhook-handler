@@ -1,25 +1,52 @@
+# server configuration
 server:
-  port: 8001
+  port: 8002
   wait-seconds-between-run-scripts: 60
   max-script-threads: 1
   max-deque: 100
-  end: 1
+  allow-status-page: yes
+  status-page-url-path: "/wh/status"
+  log-dir: "./logs"
+  income-webhooks-dir: "./income-webhooks"
 
 webhook-handlers:
   docker_compose_example_restart:
-    webhook-url-path: "/wh/eSdR93Sq1w"
+    webhook-url-path: "/wh/M9ClfMW9ea"
     enabled: no
-    folder: /some/path2
     timeout-command: 600
+    workdir: /some/path2
     commands:
-      - "docker pull some/docker"
-      - "docker-compose restart"
+      - docker pull some/docker
+      - docker-compose restart
+
   nodejs_example_rebuild:
-    webhook-url-path: "/wh/eSdR93Sq1w"
-    work-dir: "./conf.d/nodejs_example_rebuild"
+    webhook-url-path: "/wh/eSdR93Sq2w"
+    workdir: "../"
     user: www-data
     timeout-command: 600
     commands:
-      - ./rebuild.sh
-      # - "bash rebuild.sh"
+      - git pull
+      - npm run build
+      # TODO if need check build
+      - cp -f dist/* /var/www/html/some_proj
+      # wget http://webhook.com/somehook
 
+  sample_test:
+    webhook-url-path: "/wh/sample_test"
+    workdir: "./test"
+    user: www-data
+    timeout-command: 600
+    commands:
+      - echo "123" >> "sample_test"
+      - python3 process_hook.py %WEBHOOK_DATA_FILE_PATH%
+
+  github_test:
+    webhook-url-path: "/wh/github_test"
+    user: www-data
+    timeout-command: 600
+    github-json-rules: # expected application/json income
+      filter-branches:
+        - master
+    workdir: "./test"
+    commands:
+      - echo 123 >> github_test

@@ -21,6 +21,9 @@ class Webhook {
         void setTimeoutCommand(int nSec);
         int getTimeoutCommand() const;
 
+        void setUser(const std::string &sUser);
+        std::string getUser();
+
     private:
         int m_nScriptWaitInSec;
         std::string m_sID;
@@ -43,18 +46,23 @@ class WebhookHandlerConfig {
 
         const std::vector<Webhook> &webhooksConf();
 
+        bool isAllowedStatusPage();
+
     private:
-        
+        bool applyServerConfig();
+
         std::string TAG;
-        
         std::string m_sWorkspaceDir;
         std::string m_sConfigFile;
+        std::string m_sLogDir;
         WsjcppYaml *m_pYamlConfig;
         int m_nServerPort;
         int m_nMaxDeque;
         int m_nMaxScriptThreads;
         int m_nWaitSecondsBetweenRunScripts;
         std::vector<Webhook> m_vWebhooksConf;
+        bool m_bAllowedStatusPage;
+        std::string m_sStatusPageUrlPath;
 };
 
 #endif // WEBHOOK_HANDLER_CONFIG

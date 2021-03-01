@@ -28,15 +28,15 @@ std::vector<ScriptsThread *> g_vThreads;
 
 int main(int argc, char* argv[]) {
     std::string TAG = "MAIN";
-    std::string sAppName = std::string(WSJCPP_NAME);
-    std::string sAppVersion = std::string(WSJCPP_VERSION);
+    std::string sAppName = std::string(WSJCPP_APP_NAME);
+    std::string sAppVersion = std::string(WSJCPP_APP_VERSION);
 
     HelpParseArgs helpParseArgs(argc, argv);
     helpParseArgs.setAppName(sAppName);
     helpParseArgs.setAppName(sAppVersion);
 
     helpParseArgs.addHelp("start", "-s", false, 
-        "Start mecd service");
+        "Start webhook-handler service");
 
     helpParseArgs.addHelp("--dir", "-d", true, 
         "Workspace folder with configs, logging, scripts and etc.");

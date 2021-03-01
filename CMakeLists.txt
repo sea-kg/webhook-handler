@@ -42,15 +42,6 @@ list (APPEND WSJCPP_SOURCES "src/webhook_handler_config.h")
 list (APPEND WSJCPP_SOURCES "src/webhook_handler_config.cpp")
 list (APPEND WSJCPP_SOURCES "src/main.cpp")
 
-# CURL
-FIND_PACKAGE(CURL)
-IF(CURL_FOUND)
-  list (APPEND WSJCPP_INCLUDE_DIRS ${CURL_INCLUDE_DIR})
-  list (APPEND WSJCPP_LIBRARIES ${CURL_LIBRARIES})
-ELSE(CURL_FOUND)
-  MESSAGE(FATAL_ERROR "Could not find the CURL library and development files.")
-ENDIF(CURL_FOUND)
-
 include_directories(${WSJCPP_INCLUDE_DIRS})
 
 add_executable (webhook-handler ${WSJCPP_SOURCES})

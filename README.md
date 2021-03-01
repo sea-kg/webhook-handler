@@ -1,4 +1,8 @@
-# webhook-handler
+# webhook-hdl2703
+
+HTTP endpoints (hooks) - no ssl configuration (use a http-server with proxy)
+
+Look here https://github.com/topics/webhook
 
 [![Build Status](https://api.travis-ci.com/sea-kg/webhook-handler.svg?branch=master)](https://travis-ci.com/sea-kg/webhook-handler)
 
@@ -9,8 +13,7 @@ Install requriments
 $ apt-get -y update && apt-get install -y \
     make cmake \
     g++ \
-    pkg-config \
-    libcurl4-openssl-dev
+    pkg-config
 ```
 
 Build
@@ -24,23 +27,36 @@ $ ./clean.sh && ./build_simple.sh
 ./webhook-handler --dir ./data start
 ```
 
-## Configure examples
+## Configuration examples
 
-File ./data/conf.d/server.conf:
+File ./data/webhook-handler-conf.yml (or server will try search in /etc/webhook-handler):
 
+```yaml
+# server configuration
+server:
+  port: 8002
+  wait-seconds-between-run-scripts: 60
+  max-script-threads: 1
+  max-deque: 100
+  allow-status-page: yes
+  status-page-url-path: "/wh/status" # will work if 'allow-status-page: yes'
+  log-dir: "./logs"
 ```
-http_port = 8001
-sleep_between_run_scripts_in_sec = 1
-threads_for_scripts = 1
-```
+
 Where
 
-* sleep_between_run_scripts_in_sec - How much time sleep between scripts (max time before run script after got webhook)
-* threads_for_scripts - How much threads for processing scripts 
-* http_port - http port
+* `server/port` - number, web port (default 8002)
+* `server/allow-status-page` - boolean, enable or disable status page (default: no)
+* `server/status-page-url-path` - string, path to page with status of server (default: "/wh/status")
+* `server/log-dir` - string, path to log directory (default: "/var/log/webhook-handler/")
+* `server/max-script-threads` - number, max count of threads for handling webhooks
+* `server/wait-seconds-between-run-scripts` - number, 
+* `server/max-deque` - number, max value of possible webhooks handlers
 
 
-File ./data/conf.d/%dir%/webhook.conf:
+* `webhook-handlers/%webhookid%/commands` - list of commands to execute (Variables: %WEBHOOK_DATA_FILE_PATH% - path to file with income data with webhooks)
+
+File ./data/%dir%/webhook.conf:
 
 ```
 id = %webhookid%
@@ -56,5 +72,12 @@ enabled = yes
 
 After start server will be here
 
-# unique id of webhook, 
-# Webhook will like http://localhost:%port%/wh/%webhookid%
+unique id of webhook, 
+Webhook will like http://localhost:%port%/%webhook-url-path%
+
+
+
+
+
+
+

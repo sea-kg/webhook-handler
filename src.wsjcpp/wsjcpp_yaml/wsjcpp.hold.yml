@@ -1,12 +1,10 @@
 wsjcpp_version: v0.0.1
 cmake_minimum_required: 3.0
 cmake_cxx_standard: 11
-
 name: wsjcpp-yaml
-version: v0.1.2
+version: v0.1.5
 description: Read/Write yaml files
 issues: https://github.com/wsjcpp/wsjcpp-yaml/issues
-
 repositories:
   - type: main
     url: "https://github.com/wsjcpp/wsjcpp-yaml"
@@ -22,12 +20,9 @@ authors:
   - name: Evgenii Sopov
     email: mrseakg@gmail.com
 
-required-libraries:
-  - pthread
-
 dependencies:
   - name: "wsjcpp-core"
-    version: "v0.1.1"
+    version: "v0.2.1"
     url: "https://github.com/wsjcpp/wsjcpp-core:master"
     origin: "https://github.com/"
     installation-dir: "./src.wsjcpp/wsjcpp_core"
@@ -36,9 +31,11 @@ distribution:
   - source-file: src/wsjcpp_yaml.cpp
     target-file: wsjcpp_yaml.cpp
     type: "source-code"
+    sha1: "4499a4c41502a4018c90342ec6383e4eaf5bee9a"
   - source-file: src/wsjcpp_yaml.h
     target-file: wsjcpp_yaml.h
     type: "source-code"
+    sha1: "117b7ad659aea6ff336af3dcb1a07ca77e707517"
 
 unit-tests:
   cases:
@@ -50,3 +47,31 @@ unit-tests:
       description: Test Parse Map
     - name: YamlParserHierarchicalMap
       description: Test Hierarchical Map
+    - name: YamlParserQuotes
+      description: YamlParserQuotes
+    - name: YamlParserComments
+      description: YamlParserComments
+    - name: YamlParserAll
+      description: YamlParserAll
+    - name: YamlParserArrayIncludedMap
+      description: YamlParserArrayIncludedMap
+    - name: "RemoveElementForMap"
+      description: ""
+    - name: "RemoveElementInArray"
+      description: ""
+    - name: "MemoryLeaks"
+      description: ""
+    - name: "ReadYaml"
+      description: ""
+    - name: "ReadWriteFile"
+      description: ""
+    - name: "Cursor"
+      description: ""
+    - name: "TagNames"
+      description: ""
+    - name: "Cleanup"
+      description: ""
+    - name: "AppendElements"
+      description: ""
+    - name: "ReadWsjcppHoldYml"
+      description: ""
