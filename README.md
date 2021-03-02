@@ -2,9 +2,11 @@
 
 HTTP endpoints (hooks) - no ssl configuration (use a http-server with proxy)
 
+<!-- 
 Look here https://github.com/topics/webhook
+-->
 
-[![Build Status](https://api.travis-ci.com/sea-kg/webhook-handler.svg?branch=master)](https://travis-ci.com/sea-kg/webhook-handler)
+[![Build Status](https://api.travis-ci.org/sea-kg/webhook-handler.svg?branch=master)](https://travis-ci.org/sea-kg/webhook-handler)
 
 ## Build on debian/ubuntu
 
