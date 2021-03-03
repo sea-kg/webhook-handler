@@ -17,9 +17,12 @@ list (APPEND WSJCPP_INCLUDE_DIRS "src")
 list (APPEND WSJCPP_INCLUDE_DIRS "src/scripts")
 list (APPEND WSJCPP_INCLUDE_DIRS "src/utils")
 list (APPEND WSJCPP_INCLUDE_DIRS "src/interfaces")
+list (APPEND WSJCPP_INCLUDE_DIRS "src/filter-rules")
 list (APPEND WSJCPP_INCLUDE_DIRS "src/web-server")
-list (APPEND WSJCPP_INCLUDE_DIRS "src/web-server/core")
-list (APPEND WSJCPP_INCLUDE_DIRS "src/3rd_party/HowardHinnant/date")
+
+# filters 
+list (APPEND WSJCPP_SOURCES "src/filter-rules/github_json_filter_rules.h")
+list (APPEND WSJCPP_SOURCES "src/filter-rules/github_json_filter_rules.h")
 
 # utils
 list (APPEND WSJCPP_SOURCES "src/utils/help_parse_args.h")

@@ -44,8 +44,8 @@ webhook-handlers:
     webhook-url-path: "/wh/github_test"
     user: www-data
     timeout-command: 600
-    github-json-rules: # expected application/json income
-      filter-branches:
+    github-json-filter-rules: # expected application/json income
+      branches:
         - master
     workdir: "./test"
     commands:
