@@ -45,8 +45,8 @@ webhook-handlers:
     user: www-data
     timeout-command: 600
     github-json-filter-rules: # expected application/json income
-      branches:
-        - master
+      ref:
+        - "refs/heads/master"
     workdir: "./test"
     commands:
       - echo 123 >> github_test
