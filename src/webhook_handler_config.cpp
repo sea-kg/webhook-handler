@@ -72,6 +72,7 @@ WebhookHandlerConfig::WebhookHandlerConfig(const std::string &sWorkspaceDir) {
     m_nWaitSecondsBetweenRunScripts = 60;
     m_sLogDir = "/var/log/webhook-handler/";
     m_sStatusPageUrlPath = "/wh/status";
+    m_sIncomeWebhooksDir = "/var/lib/webhook-handler/income-webhooks/";
 }
 
 // ---------------------------------------------------------------------
@@ -197,6 +198,10 @@ int WebhookHandlerConfig::getWaitSecondsBetweenRunScripts() {
     return m_nWaitSecondsBetweenRunScripts;
 }
 
+std::string WebhookHandlerConfig::getIncomeWebhookDir() {
+    return m_sIncomeWebhooksDir;
+}
+
 const std::vector<Webhook> &WebhookHandlerConfig::webhooksConf() {
     return m_vWebhooksConf;
 }
@@ -249,6 +254,11 @@ bool WebhookHandlerConfig::applyServerConfig() {
             m_sStatusPageUrlPath = curServer[sKey].valStr();
         } else if (sKey == "log-dir") {
             m_sLogDir = curServer[sKey].valStr();
+        } else if (sKey == "income-webhooks-dir") {
+            m_sIncomeWebhooksDir = curServer[sKey].valStr();
+            if (m_sIncomeWebhooksDir.size() > 0 && m_sIncomeWebhooksDir[0] != '/') {
+                m_sIncomeWebhooksDir = WsjcppCore::doNormalizePath(m_sWorkspaceDir + "/" + m_sIncomeWebhooksDir);
+            }
         } else {
             WsjcppLog::warn(TAG, "Unknown key: '" + sKey + "'" + sLogFormat);
         }

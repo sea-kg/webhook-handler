@@ -43,7 +43,7 @@ class WebhookHandlerConfig {
         int getMaxDeque();
         int getMaxScriptThreads();
         int getWaitSecondsBetweenRunScripts();
-
+        std::string getIncomeWebhookDir();
         const std::vector<Webhook> &webhooksConf();
 
         bool isAllowedStatusPage();
@@ -63,6 +63,7 @@ class WebhookHandlerConfig {
         std::vector<Webhook> m_vWebhooksConf;
         bool m_bAllowedStatusPage;
         std::string m_sStatusPageUrlPath;
+        std::string m_sIncomeWebhooksDir;
 };
 
 #endif // WEBHOOK_HANDLER_CONFIG

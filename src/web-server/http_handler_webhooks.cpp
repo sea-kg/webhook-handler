@@ -36,16 +36,10 @@ bool HttpHandlerWebhooks::canHandle(const std::string &sWorkerId, WsjcppLightWeb
 
 bool HttpHandlerWebhooks::handle(const std::string &sWorkerId, WsjcppLightWebHttpRequest *pRequest){
     std::string _tag = TAG + "-" + sWorkerId;
-    long nT = WsjcppCore::getCurrentTimeInSeconds();
-
-    std::string sFilenamePayload = "webhook_dt" + std::to_string(nT) + ".payload";
-    std::string sFilenameRequest = "webhook_dt" + std::to_string(nT) + ".req";
-
-    // TODO save request body to file "webhook_dt" + datetime + ".req"
-    // WsjcppLog::info(_tag, pRequest->getRequestBody());
     WsjcppLightWebHttpResponse response(pRequest->getSockFd());
     std::string sPath = pRequest->getRequestPath();
-    m_pDequeWebhooks->pushWebhookId(sPath);
+    // WsjcppLog::info(_tag, pRequest->getRequestBody());
+    m_pDequeWebhooks->pushWebhookId(sPath, pRequest->getRequestBody());
     response.ok().sendText("OK");
     return true;
 }
