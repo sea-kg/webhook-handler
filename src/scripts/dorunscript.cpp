@@ -20,16 +20,17 @@
 #include <iostream>
 #include <cstring>
 
+// ----------------------------------------------------------------------
+// DoRunScript
+
 DoRunScript::DoRunScript(
     const std::string &sDir,
-    const std::string &sScript
+    const std::vector<std::string> &vCommands
 ) {
     TAG = "DoRunScript";
     m_sDir = sDir;
-    m_sScript = sScript;
+    m_vCommands = vCommands;
 }
-
-// ----------------------------------------------------------------------
 
 bool DoRunScript::hasError() {
     return m_bHasError;
@@ -133,15 +134,18 @@ void DoRunScript::run() {
         close(fd[0]);
         close(fd[1]);
         chdir(m_sDir.c_str());
+        WsjcppLog::err(TAG, "Change Dir: " + m_sDir);
         // setpgid(nChildPid, nChildPid); //Needed so negative PIDs can kill children of /bin/sh
-        execlp(
-            m_sScript.c_str(), // 
-            m_sScript.c_str(), // first argument must be same like executable file
-            (char *) 0
-        );
-        
-        perror("execl");
-        exit(-1);
+        for (int i = 0; i < m_vCommands.size(); i++) {
+            std::string sCommand = m_vCommands[i];
+            execlp(
+                sCommand.c_str(), // 
+                sCommand.c_str(), // first argument must be same like executable file
+                (char *) 0
+            );
+            perror("execl");
+            exit(-1);
+        }
     }
     
     // parent process;
