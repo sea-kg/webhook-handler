@@ -41,6 +41,8 @@ void UnitTestParseCommandsArgs::executeTest() {
     
     std::vector<LocalTest> vTests;
     vTests.push_back(LocalTest("ls -la", {"ls", "-la"}));
+    vTests.push_back(LocalTest("echo \"some text\"", {"echo", "\"some text\""}));
+    vTests.push_back(LocalTest("echo 'some text'", {"echo", "'some text'"}));
 
     for (int i = 0; i < vTests.size(); i++) {
         std::string sCommand = vTests[i].command;
@@ -48,7 +50,9 @@ void UnitTestParseCommandsArgs::executeTest() {
         std::vector<std::string> vGotArgs = DoRunCommands::parseCommands(sCommand);
         compare("Expected args size", vExpectedArgs.size(), vGotArgs.size());
         if (vExpectedArgs.size() == vGotArgs.size()) {
-
+            for (int x = 0; x < vGotArgs.size(); x++) {
+                compare("Expected args size", vExpectedArgs[x], vGotArgs[x]);
+            }
         }
     }
     
