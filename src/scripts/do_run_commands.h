@@ -20,6 +20,7 @@ class DoRunCommands {
         bool isTimeout();
         const std::string &outputString();
         void run();
+        static std::vector<std::string> parseCommands(const std::string& sCommands);
 
     private:
         std::string TAG;

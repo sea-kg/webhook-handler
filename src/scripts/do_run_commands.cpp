@@ -229,3 +229,8 @@ void DoRunCommands::run() {
 }
 
 // ----------------------------------------------------------------------
+
+std::vector<std::string> DoRunCommands::parseCommands(const std::string& sCommands) {
+    std::vector<std::string> sArgs = WsjcppCore::split(sCommands, " ");
+    return sArgs;
+}

@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.0)
 
 project(unit-tests C CXX)
 add_definitions(-DWSJCPP_APP_VERSION="ut-v0.3.0")
-add_definitions(-DWSJCPP_APP_NAME="unit-tests-webhook-hdl2703")
+add_definitions(-DWSJCPP_APP_NAME="unit-tests-webhook-handler")
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     set(MACOSX TRUE)
@@ -55,12 +55,15 @@ list (APPEND WSJCPP_SOURCES "../src.wsjcpp/wsjcpp_yaml/wsjcpp_yaml.h")
 list (APPEND WSJCPP_INCLUDE_DIRS "../src.wsjcpp/HowardHinnant_date/")
 list (APPEND WSJCPP_SOURCES "../src.wsjcpp/HowardHinnant_date/date.h")
 
-# webhook-hdl2703:v0.3.0
+# webhook-handler:v0.3.0
 list (APPEND WSJCPP_INCLUDE_DIRS "../src")
+list (APPEND WSJCPP_SOURCES "../src/scripts/do_run_commands.h")
+list (APPEND WSJCPP_SOURCES "../src/scripts/do_run_commands.cpp")
 
 # unit-tests
 list (APPEND WSJCPP_INCLUDE_DIRS "src")
 list (APPEND WSJCPP_SOURCES "../unit-tests.wsjcpp/src/unit_test_github_filter_rules.cpp")
+list (APPEND WSJCPP_SOURCES "../unit-tests.wsjcpp/src/unit_test_parse_commands_args.cpp")
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/CMakeLists.user-custom.txt)
 

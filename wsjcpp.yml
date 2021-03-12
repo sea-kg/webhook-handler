@@ -52,3 +52,12 @@ unit-tests:
   cases:
     - name: "GithubFilterRules"
       description: ""
+    - name: "ParseCommandsArgs"
+      description: ""
+distribution:
+  - source-file: "src/scripts/do_run_commands.h"
+    target-file: "do_run_commands.h"
+    type: "source-code"
+  - source-file: "src/scripts/do_run_commands.cpp"
+    target-file: "do_run_commands.cpp"
+    type: "source-code"
