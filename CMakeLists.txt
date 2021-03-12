@@ -29,8 +29,8 @@ list (APPEND WSJCPP_SOURCES "src/utils/help_parse_args.h")
 list (APPEND WSJCPP_SOURCES "src/utils/help_parse_args.cpp")
 
 # scripts
-list (APPEND WSJCPP_SOURCES "src/scripts/dorunscript.h")
-list (APPEND WSJCPP_SOURCES "src/scripts/dorunscript.cpp")
+list (APPEND WSJCPP_SOURCES "src/scripts/do_run_commands.h")
+list (APPEND WSJCPP_SOURCES "src/scripts/do_run_commands.cpp")
 list (APPEND WSJCPP_SOURCES "src/scripts/scripts_thread.h")
 list (APPEND WSJCPP_SOURCES "src/scripts/scripts_thread.cpp")
 list (APPEND WSJCPP_SOURCES "src/scripts/deque_webhooks.h")

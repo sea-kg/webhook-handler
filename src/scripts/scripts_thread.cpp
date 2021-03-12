@@ -1,7 +1,7 @@
 #include "scripts_thread.h"
 #include <unistd.h>
 
-#include <dorunscript.h>
+#include <do_run_commands.h>
 #include <iostream>
 #include <sstream>
 #include <chrono>
@@ -139,7 +139,7 @@ void ScriptsThread::run() {
         std::chrono::time_point<std::chrono::system_clock> start, end;
         start = std::chrono::system_clock::now();
         
-        DoRunScript process(webhook.getWorkDir(), webhook.getCommands());
+        DoRunCommands process(webhook.getWorkDir(), webhook.getCommands());
         process.start(webhook.getTimeoutCommand()*1000);
 
         if (process.isTimeout()) {

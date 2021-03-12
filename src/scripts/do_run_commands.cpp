@@ -1,5 +1,5 @@
 
-#include "dorunscript.h"
+#include "do_run_commands.h"
 #include <wsjcpp_core.h>
 #include <mutex>
 #include <sstream>
@@ -21,36 +21,36 @@
 #include <cstring>
 
 // ----------------------------------------------------------------------
-// DoRunScript
+// DoRunCommands
 
-DoRunScript::DoRunScript(
+DoRunCommands::DoRunCommands(
     const std::string &sDir,
     const std::vector<std::string> &vCommands
 ) {
-    TAG = "DoRunScript";
+    TAG = "DoRunCommands";
     m_sDir = sDir;
     m_vCommands = vCommands;
 }
 
-bool DoRunScript::hasError() {
+bool DoRunCommands::hasError() {
     return m_bHasError;
 }
 
 // ----------------------------------------------------------------------
 
-int DoRunScript::exitCode() {
+int DoRunCommands::exitCode() {
     return m_nExitCode;
 }
 
 // ----------------------------------------------------------------------
 
-bool DoRunScript::isTimeout() {
+bool DoRunCommands::isTimeout() {
     return m_bFinishedByTimeout;
 }
 
 // ----------------------------------------------------------------------
 
-const std::string &DoRunScript::outputString() {
+const std::string &DoRunCommands::outputString() {
     return m_sOutput;
 }
 
@@ -58,15 +58,15 @@ const std::string &DoRunScript::outputString() {
 
 void* newProcessThread(void *arg) {
     // Log::info("newRequest", "");
-    DoRunScript *m_DoRunScript = (DoRunScript *)arg;
+    DoRunCommands *m_pDoRunCommands = (DoRunCommands *)arg;
     pthread_detach(pthread_self());
-    m_DoRunScript->run();
+    m_pDoRunCommands->run();
     return 0;
 }
 
 // ----------------------------------------------------------------------
 
-void DoRunScript::start(int nTimeoutMS) {
+void DoRunCommands::start(int nTimeoutMS) {
     m_bFinished = false;
     m_bFinishedByTimeout = false;
     m_nTimeoutMS = nTimeoutMS;
@@ -97,7 +97,7 @@ void DoRunScript::start(int nTimeoutMS) {
 
 // ----------------------------------------------------------------------
 
-void DoRunScript::run() {
+void DoRunCommands::run() {
     m_nExitCode = 1;
     m_sOutput = "";
     m_bHasError = false;

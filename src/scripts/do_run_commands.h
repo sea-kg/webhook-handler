@@ -1,5 +1,5 @@
-#ifndef DORUNSCRIPT_H
-#define DORUNSCRIPT_H
+#ifndef DO_RUN_COMMANDS_H
+#define DO_RUN_COMMANDS_H
 
 #include <string>
 #include <stdio.h>
@@ -8,9 +8,9 @@
 #include <deque>
 #include <vector>
 
-class DoRunScript {
+class DoRunCommands {
     public:
-        DoRunScript(
+        DoRunCommands(
             const std::string &sDir,
             const std::vector<std::string> &vCommands
         );
@@ -36,4 +36,4 @@ class DoRunScript {
 };
 
 
-#endif // DORUNSCRIPT_H
+#endif // DO_RUN_COMMANDS_H
