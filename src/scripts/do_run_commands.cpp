@@ -134,16 +134,28 @@ void DoRunCommands::run() {
         close(fd[0]);
         close(fd[1]);
         chdir(m_sDir.c_str());
-        WsjcppLog::err(TAG, "Change Dir: " + m_sDir);
+        WsjcppLog::info(TAG, "Change Dir: " + m_sDir);
         // setpgid(nChildPid, nChildPid); //Needed so negative PIDs can kill children of /bin/sh
         for (int i = 0; i < m_vCommands.size(); i++) {
             std::string sCommand = m_vCommands[i];
-            execlp(
-                sCommand.c_str(), // 
-                sCommand.c_str(), // first argument must be same like executable file
-                (char *) 0
+            WsjcppLog::info(TAG, "Run command: '" + sCommand + "'");
+            std::vector<std::string> vArgs = DoRunCommands::parseCommands(sCommand);
+            int nSize = vArgs.size();
+            char **pArgs = new char * [nSize + 1];
+            pArgs[nSize] = NULL;
+            pArgs[0] = new char[vArgs[0].length() + 1];
+            for (int n = 0; n < nSize; n++) {
+                int nLen = vArgs[n].length();
+                pArgs[n] = new char[nLen + 1];
+                std::memcpy(pArgs[n], vArgs[n].c_str(), nLen);
+                pArgs[n][nLen] = 0;
+            }
+            execvp(
+                vArgs[0].c_str(), // 
+                pArgs // first argument must be same like executable file
+                // (char *) 0
             );
-            perror("execl");
+            perror("execvp");
             exit(-1);
         }
     }
@@ -231,6 +243,40 @@ void DoRunCommands::run() {
 // ----------------------------------------------------------------------
 
 std::vector<std::string> DoRunCommands::parseCommands(const std::string& sCommands) {
-    std::vector<std::string> sArgs = WsjcppCore::split(sCommands, " ");
+    std::string sToken = "";
+    std::vector<std::string> sArgs;
+    int nState = 0;
+    for (int i = 0; i < sCommands.length(); i++) {
+        if (nState == 0 && sCommands[i] == '"') {
+            sToken += sCommands[i];
+            nState = 1; // string double quote
+        } else if (nState == 1 && sCommands[i] != '"') {
+            sToken += sCommands[i];
+        } else if (nState == 1 && sCommands[i] == '"') {
+            sToken += sCommands[i];
+            nState = 0; // end string double quote
+        } else if (nState == 0 && sCommands[i] == '\'') {
+            sToken += sCommands[i];
+            nState = 2; // string single quote
+        } else if (nState == 2 && sCommands[i] != '\'') {
+            sToken += sCommands[i];
+        } else if (nState == 2 && sCommands[i] == '\'') {
+            sToken += sCommands[i];
+            nState = 0; // end string double quote
+        } else if (nState == 0 && sCommands[i] != ' ') {
+            sToken += sCommands[i];
+        } else if (nState == 0 && sCommands[i] == ' ') {
+            sToken = WsjcppCore::trim(sToken);
+            if (sToken != "") {
+                sArgs.push_back(sToken);
+                sToken = "";
+            }
+        }
+    }
+    sToken = WsjcppCore::trim(sToken);
+    if (sToken != "") {
+        sArgs.push_back(sToken);
+    }
+    // = WsjcppCore::split(sCommands, " ");
     return sArgs;
 }

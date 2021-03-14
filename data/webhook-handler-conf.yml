@@ -49,4 +49,5 @@ webhook-handlers:
         - "refs/heads/master"
     workdir: "./test"
     commands:
+      - pwd
       - echo 123 >> github_test

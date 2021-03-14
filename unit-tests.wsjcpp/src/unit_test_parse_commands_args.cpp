@@ -48,10 +48,10 @@ void UnitTestParseCommandsArgs::executeTest() {
         std::string sCommand = vTests[i].command;
         std::vector<std::string> vExpectedArgs = vTests[i].expectedArgs;
         std::vector<std::string> vGotArgs = DoRunCommands::parseCommands(sCommand);
-        compare("Expected args size", vExpectedArgs.size(), vGotArgs.size());
+        compare("Args size for [" + sCommand + "]", vExpectedArgs.size(), vGotArgs.size());
         if (vExpectedArgs.size() == vGotArgs.size()) {
             for (int x = 0; x < vGotArgs.size(); x++) {
-                compare("Expected args size", vExpectedArgs[x], vGotArgs[x]);
+                compare("arg", vExpectedArgs[x], vGotArgs[x]);
             }
         }
     }
