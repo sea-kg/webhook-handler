@@ -28,6 +28,7 @@ class DoRunCommand {
         std::string TAG;
         std::string m_sDir;
         std::string m_sCommand;
+        std::vector<std::string> m_vParsedCommand;
         int m_nTimeoutMS;
         pid_t m_nPid;
         pthread_t m_pProcessThread;

@@ -30,6 +30,8 @@ DoRunCommand::DoRunCommand(
     TAG = "DoRunCommand";
     m_sDir = sDir;
     m_sCommand = sCommand;
+    m_vParsedCommand = DoRunCommand::parseCommands(m_sCommand);
+
     // TODO parse args 
     // TODO check args. don't allow '>>' '>' 2> 1> &> and etc
     // TODO wiil be not work some 'cd ..'
@@ -118,17 +120,18 @@ void DoRunCommand::run() {
         return;
     }
 
-    std::cout << std::flush;
-    std::cerr << std::flush;
+    
 
     WsjcppLog::info(TAG, "Will be change dir to: '" + m_sDir + "'");
-    std::vector<std::string> vArgs = DoRunCommand::parseCommands(m_sCommand);
-    int nSize = vArgs.size();
+    int nSize = m_vParsedCommand.size();
     WsjcppLog::info(TAG, "Exec command: {" + m_sCommand + "}");
     for (int i = 0; i < nSize; i++) {
-        WsjcppLog::info(TAG, "Exec arg" + std::to_string(i)+ ": {" + vArgs[i] + "}");
+        WsjcppLog::info(TAG, "Exec arg" + std::to_string(i)+ ": {" + m_vParsedCommand[i] + "}");
     }
 
+    std::cout << std::flush;
+    std::cerr << std::flush;
+    
     pid_t nChildPid = fork();
 
     if(nChildPid < 0) {
@@ -151,16 +154,16 @@ void DoRunCommand::run() {
 
         char **pArgs = new char * [nSize + 1];
         pArgs[nSize] = (char *) 0;
-        pArgs[0] = new char[vArgs[0].length() + 1];
+        pArgs[0] = new char[m_vParsedCommand[0].length() + 1];
         for (int n = 0; n < nSize; n++) {
-            int nLen = vArgs[n].length();
+            int nLen = m_vParsedCommand[n].length();
             pArgs[n] = new char[nLen + 1];
-            std::memcpy(pArgs[n], vArgs[n].c_str(), nLen);
+            std::memcpy(pArgs[n], m_vParsedCommand[n].c_str(), nLen);
             pArgs[n][nLen] = 0;
         }
         // TODO after exec delete from memory
         execvp(
-            vArgs[0].c_str(), // 
+            pArgs[0], // 
             pArgs // first argument must be same like executable file
             // (char *) 0
         );
