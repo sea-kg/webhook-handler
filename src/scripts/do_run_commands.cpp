@@ -95,8 +95,6 @@ void DoRunCommands::start(int nTimeoutMS) {
     }
 }
 
-// ----------------------------------------------------------------------
-
 void DoRunCommands::run() {
     m_nExitCode = 1;
     m_sOutput = "";
@@ -117,6 +115,9 @@ void DoRunCommands::run() {
         return;
     }
 
+    std::cout << std::flush;
+    std::cerr << std::flush;
+
     pid_t nChildPid = fork();
 
     if(nChildPid < 0) {
@@ -134,15 +135,18 @@ void DoRunCommands::run() {
         close(fd[0]);
         close(fd[1]);
         chdir(m_sDir.c_str());
-        WsjcppLog::info(TAG, "Change Dir: " + m_sDir);
+        // std::cout << "Change Dir: '" << m_sDir << "'" << std::endl;
         // setpgid(nChildPid, nChildPid); //Needed so negative PIDs can kill children of /bin/sh
-        for (int i = 0; i < m_vCommands.size(); i++) {
+        // for (int i = 0; i < m_vCommands.size(); i++) {
+        for (int i = 0; i < 1; i++) {
             std::string sCommand = m_vCommands[i];
-            WsjcppLog::info(TAG, "Run command: '" + sCommand + "'");
+            // printf("Hello\n");
+            // write( STDOUT_FILENO, sCommand.c_str(), sCommand.length() );
+            // std::cout << "Exec command: [" << sCommand << "]" << std::endl;
             std::vector<std::string> vArgs = DoRunCommands::parseCommands(sCommand);
             int nSize = vArgs.size();
             char **pArgs = new char * [nSize + 1];
-            pArgs[nSize] = NULL;
+            pArgs[nSize] = (char *) 0;
             pArgs[0] = new char[vArgs[0].length() + 1];
             for (int n = 0; n < nSize; n++) {
                 int nLen = vArgs[n].length();
@@ -150,11 +154,20 @@ void DoRunCommands::run() {
                 std::memcpy(pArgs[n], vArgs[n].c_str(), nLen);
                 pArgs[n][nLen] = 0;
             }
+            // for (int n = 0; n < nSize; n++) {
+            //     std::cout << "Exec args" << n << ": [" << pArgs[n] << "]" << std::endl;
+            // }
+            // execlp(
+            //     vArgs[0].c_str(), // 
+            //     vArgs[0].c_str(), // first argument must be same like executable file
+            //     (char *) 0
+            // );
             execvp(
                 vArgs[0].c_str(), // 
                 pArgs // first argument must be same like executable file
                 // (char *) 0
             );
+            printf("Hello1\n");
             perror("execvp");
             exit(-1);
         }
@@ -179,7 +192,6 @@ void DoRunCommands::run() {
             perror("waitpid() failed");
             exit(EXIT_FAILURE);
         }
-
         if ( WIFEXITED(status) ) {
             m_bHasError = false;
             m_nExitCode = WEXITSTATUS(status);
@@ -188,13 +200,13 @@ void DoRunCommands::run() {
         close(nPipeOut);
         m_bHasError = true;
         m_nExitCode = -1;
-        WsjcppLog::err("DoRunProcess", "bad alloc");
+        std::cerr << "bad alloc" << std::endl;
         return;
     }
     
     close(nPipeOut);
-
-    // Log::info(TAG, "Process exit code: " + std::to_string(m_nExitCode));
+    
+    WsjcppLog::info(TAG, "m_nExitCode = " + std::to_string(m_nExitCode));
 
     if (m_bFinishedByTimeout) {
         return;
@@ -279,4 +291,25 @@ std::vector<std::string> DoRunCommands::parseCommands(const std::string& sComman
     }
     // = WsjcppCore::split(sCommands, " ");
     return sArgs;
+}
+
+// ----------------------------------------------------------------------
+
+std::string DoRunCommands::exec(const char* cmd) {
+    char buffer[128];
+    std::string result = "";
+    FILE* pipe = popen(cmd, "r");
+    if (!pipe) {
+        throw std::runtime_error("popen() failed!");
+    }
+    try {
+        while (fgets(buffer, sizeof buffer, pipe) != NULL) {
+            result += buffer;
+        }
+    } catch (...) {
+        pclose(pipe);
+        throw;
+    }
+    pclose(pipe);
+    return result;
 }

@@ -98,20 +98,6 @@ void ScriptsThread::run() {
     // TODO check if game ended
 
     WsjcppLog::info(TAG, "Starting thread...");
-    /*if (QString::fromStdString(m_teamConf.ipAddress()).isEmpty()) {
-        WsjcppLog::err(TAG, "User IP Address is empty!!!");
-        return;
-    }*/
-
-    // std::string sScriptPath = m_serviceConf.scriptPath();
-    /*
-    // already checked on start
-    if (!WsjcppLog::fileExists(sScriptPath)) {
-        WsjcppLog::err(TAG, "FAIL: Script Path to checker not found '" + sScriptPath + "'");
-        // TODO shit status
-        return;
-    }*/
-
     while(1) {
 
         std::this_thread::sleep_for(std::chrono::seconds(m_nWaitSecondsBetweenRunScripts));
@@ -121,7 +107,7 @@ void ScriptsThread::run() {
             continue;
         }
 
-        WsjcppLog::info(TAG, "Start execute webhook " + sWebhookId);
+        WsjcppLog::info(TAG, "Start handling webhook " + sWebhookId);
         int nSize = m_pConfig->webhooksConf().size();
         Webhook webhook;
         bool bFound = false;
@@ -157,12 +143,12 @@ void ScriptsThread::run() {
         int nExitCode = process.exitCode();
         if (nExitCode != 0) {
             WsjcppLog::err(TAG, "Wrong script exit code " + std::to_string(nExitCode) + "...\n"
-                "\n" + process.outputString());
+                "\nOutput:" + process.outputString());
+            WsjcppLog::info(TAG, "Wait next...");
             continue;
         } else {
             WsjcppLog::info(TAG, "Output:\n" + process.outputString());
             WsjcppLog::ok(TAG, "Script done.");
-
         }
         end = std::chrono::system_clock::now();
 

@@ -23,6 +23,8 @@ class DoRunCommands {
         static std::vector<std::string> parseCommands(const std::string& sCommands);
 
     private:
+        std::string exec(const char* cmd);
+        
         std::string TAG;
         std::string m_sDir;
         std::vector<std::string> m_vCommands;
