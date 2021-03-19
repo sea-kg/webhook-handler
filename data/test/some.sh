@@ -1,4 +1,4 @@
 #!/bin/bash
 
-echo 1234
-echo >> some.txt
+echo "Print 1234 to some.txt"
+echo "1234" >> some.txt

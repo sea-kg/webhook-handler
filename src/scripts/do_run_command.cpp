@@ -1,5 +1,5 @@
 
-#include "do_run_commands.h"
+#include "do_run_command.h"
 #include <wsjcpp_core.h>
 #include <mutex>
 #include <sstream>
@@ -21,36 +21,39 @@
 #include <cstring>
 
 // ----------------------------------------------------------------------
-// DoRunCommands
+// DoRunCommand
 
-DoRunCommands::DoRunCommands(
+DoRunCommand::DoRunCommand(
     const std::string &sDir,
-    const std::vector<std::string> &vCommands
+    const std::string &sCommand
 ) {
-    TAG = "DoRunCommands";
+    TAG = "DoRunCommand";
     m_sDir = sDir;
-    m_vCommands = vCommands;
+    m_sCommand = sCommand;
+    // TODO parse args 
+    // TODO check args. don't allow '>>' '>' 2> 1> &> and etc
+    // TODO wiil be not work some 'cd ..'
 }
 
-bool DoRunCommands::hasError() {
+bool DoRunCommand::hasError() {
     return m_bHasError;
 }
 
 // ----------------------------------------------------------------------
 
-int DoRunCommands::exitCode() {
+int DoRunCommand::exitCode() {
     return m_nExitCode;
 }
 
 // ----------------------------------------------------------------------
 
-bool DoRunCommands::isTimeout() {
+bool DoRunCommand::isTimeout() {
     return m_bFinishedByTimeout;
 }
 
 // ----------------------------------------------------------------------
 
-const std::string &DoRunCommands::outputString() {
+const std::string &DoRunCommand::outputString() {
     return m_sOutput;
 }
 
@@ -58,15 +61,15 @@ const std::string &DoRunCommands::outputString() {
 
 void* newProcessThread(void *arg) {
     // Log::info("newRequest", "");
-    DoRunCommands *m_pDoRunCommands = (DoRunCommands *)arg;
+    DoRunCommand *m_pDoRunCommand = (DoRunCommand *)arg;
     pthread_detach(pthread_self());
-    m_pDoRunCommands->run();
+    m_pDoRunCommand->run();
     return 0;
 }
 
 // ----------------------------------------------------------------------
 
-void DoRunCommands::start(int nTimeoutMS) {
+void DoRunCommand::start(int nTimeoutMS) {
     m_bFinished = false;
     m_bFinishedByTimeout = false;
     m_nTimeoutMS = nTimeoutMS;
@@ -95,7 +98,7 @@ void DoRunCommands::start(int nTimeoutMS) {
     }
 }
 
-void DoRunCommands::run() {
+void DoRunCommand::run() {
     m_nExitCode = 1;
     m_sOutput = "";
     m_bHasError = false;
@@ -118,6 +121,14 @@ void DoRunCommands::run() {
     std::cout << std::flush;
     std::cerr << std::flush;
 
+    WsjcppLog::info(TAG, "Will be change dir to: '" + m_sDir + "'");
+    std::vector<std::string> vArgs = DoRunCommand::parseCommands(m_sCommand);
+    int nSize = vArgs.size();
+    WsjcppLog::info(TAG, "Exec command: {" + m_sCommand + "}");
+    for (int i = 0; i < nSize; i++) {
+        WsjcppLog::info(TAG, "Exec arg" + std::to_string(i)+ ": {" + vArgs[i] + "}");
+    }
+
     pid_t nChildPid = fork();
 
     if(nChildPid < 0) {
@@ -135,42 +146,27 @@ void DoRunCommands::run() {
         close(fd[0]);
         close(fd[1]);
         chdir(m_sDir.c_str());
-        // std::cout << "Change Dir: '" << m_sDir << "'" << std::endl;
+        
         // setpgid(nChildPid, nChildPid); //Needed so negative PIDs can kill children of /bin/sh
-        // for (int i = 0; i < m_vCommands.size(); i++) {
-        for (int i = 0; i < 1; i++) {
-            std::string sCommand = m_vCommands[i];
-            // printf("Hello\n");
-            // write( STDOUT_FILENO, sCommand.c_str(), sCommand.length() );
-            // std::cout << "Exec command: [" << sCommand << "]" << std::endl;
-            std::vector<std::string> vArgs = DoRunCommands::parseCommands(sCommand);
-            int nSize = vArgs.size();
-            char **pArgs = new char * [nSize + 1];
-            pArgs[nSize] = (char *) 0;
-            pArgs[0] = new char[vArgs[0].length() + 1];
-            for (int n = 0; n < nSize; n++) {
-                int nLen = vArgs[n].length();
-                pArgs[n] = new char[nLen + 1];
-                std::memcpy(pArgs[n], vArgs[n].c_str(), nLen);
-                pArgs[n][nLen] = 0;
-            }
-            // for (int n = 0; n < nSize; n++) {
-            //     std::cout << "Exec args" << n << ": [" << pArgs[n] << "]" << std::endl;
-            // }
-            // execlp(
-            //     vArgs[0].c_str(), // 
-            //     vArgs[0].c_str(), // first argument must be same like executable file
-            //     (char *) 0
-            // );
-            execvp(
-                vArgs[0].c_str(), // 
-                pArgs // first argument must be same like executable file
-                // (char *) 0
-            );
-            printf("Hello1\n");
-            perror("execvp");
-            exit(-1);
+
+        char **pArgs = new char * [nSize + 1];
+        pArgs[nSize] = (char *) 0;
+        pArgs[0] = new char[vArgs[0].length() + 1];
+        for (int n = 0; n < nSize; n++) {
+            int nLen = vArgs[n].length();
+            pArgs[n] = new char[nLen + 1];
+            std::memcpy(pArgs[n], vArgs[n].c_str(), nLen);
+            pArgs[n][nLen] = 0;
         }
+        // TODO after exec delete from memory
+        execvp(
+            vArgs[0].c_str(), // 
+            pArgs // first argument must be same like executable file
+            // (char *) 0
+        );
+        printf("Hello1\n");
+        perror("execvp");
+        exit(-1);
     }
     
     // parent process;
@@ -254,7 +250,7 @@ void DoRunCommands::run() {
 
 // ----------------------------------------------------------------------
 
-std::vector<std::string> DoRunCommands::parseCommands(const std::string& sCommands) {
+std::vector<std::string> DoRunCommand::parseCommands(const std::string& sCommands) {
     std::string sToken = "";
     std::vector<std::string> sArgs;
     int nState = 0;
@@ -295,7 +291,7 @@ std::vector<std::string> DoRunCommands::parseCommands(const std::string& sComman
 
 // ----------------------------------------------------------------------
 
-std::string DoRunCommands::exec(const char* cmd) {
+std::string DoRunCommand::exec(const char* cmd) {
     char buffer[128];
     std::string result = "";
     FILE* pipe = popen(cmd, "r");

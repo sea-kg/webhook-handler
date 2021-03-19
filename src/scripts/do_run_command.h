@@ -1,5 +1,5 @@
-#ifndef DO_RUN_COMMANDS_H
-#define DO_RUN_COMMANDS_H
+#ifndef DO_RUN_COMMAND_H
+#define DO_RUN_COMMAND_H
 
 #include <string>
 #include <stdio.h>
@@ -8,11 +8,11 @@
 #include <deque>
 #include <vector>
 
-class DoRunCommands {
+class DoRunCommand {
     public:
-        DoRunCommands(
+        DoRunCommand(
             const std::string &sDir,
-            const std::vector<std::string> &vCommands
+            const std::string &sCommand
         );
         void start(int nTimeoutMS);
         bool hasError();
@@ -27,7 +27,7 @@ class DoRunCommands {
         
         std::string TAG;
         std::string m_sDir;
-        std::vector<std::string> m_vCommands;
+        std::string m_sCommand;
         int m_nTimeoutMS;
         pid_t m_nPid;
         pthread_t m_pProcessThread;
@@ -39,4 +39,4 @@ class DoRunCommands {
 };
 
 
-#endif // DO_RUN_COMMANDS_H
+#endif // DO_RUN_COMMAND_H

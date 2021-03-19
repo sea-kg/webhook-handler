@@ -1,7 +1,7 @@
 #include "scripts_thread.h"
 #include <unistd.h>
 
-#include <do_run_commands.h>
+#include <do_run_command.h>
 #include <iostream>
 #include <sstream>
 #include <chrono>
@@ -92,11 +92,6 @@ int ScriptsThread::runScript(const std::string &sCommand) {
 // ---------------------------------------------------------------------
 
 void ScriptsThread::run() {
-    // TODO: BUG: so here can be problem with mysql connection after 7-8 hours (terminate connection on MySQL side)
-    // SOLUTION migrate to PostgreSQL
-
-    // TODO check if game ended
-
     WsjcppLog::info(TAG, "Starting thread...");
     while(1) {
 
@@ -122,37 +117,44 @@ void ScriptsThread::run() {
             continue;
         }
 
-        std::chrono::time_point<std::chrono::system_clock> start, end;
-        start = std::chrono::system_clock::now();
-        
-        DoRunCommands process(webhook.getWorkDir(), webhook.getCommands());
-        process.start(webhook.getTimeoutCommand()*1000);
+        std::chrono::time_point<std::chrono::system_clock> start_all, end_all, start, end;
+        start_all = std::chrono::system_clock::now();
+        std::vector<std::string> vCommands = webhook.getCommands();
+        for (int i = 0; i < vCommands.size(); i++) {
+            start = std::chrono::system_clock::now();
 
-        if (process.isTimeout()) {
-            WsjcppLog::err(TAG, "Finished by timeout " + sWebhookId);
-            WsjcppLog::err(TAG, process.outputString());
-            continue;
+            DoRunCommand process(webhook.getWorkDir(), vCommands[i]);
+            process.start(webhook.getTimeoutCommand()*1000);
+
+            if (process.isTimeout()) {
+                WsjcppLog::err(TAG, "Finished by timeout " + sWebhookId);
+                WsjcppLog::err(TAG, process.outputString());
+                continue;
+            }
+
+            if (process.hasError()) {
+                WsjcppLog::err(TAG, "Script failed");
+                WsjcppLog::err(TAG, "Error on run script: " + process.outputString());
+                continue;
+            }
+
+            int nExitCode = process.exitCode();
+            if (nExitCode != 0) {
+                WsjcppLog::err(TAG, "Wrong script exit code " + std::to_string(nExitCode) + "...\n"
+                    "\nOutput:" + process.outputString());
+                WsjcppLog::info(TAG, "Wait next...");
+                continue;
+            } else {
+                WsjcppLog::info(TAG, "Output:\n" + process.outputString());
+                WsjcppLog::ok(TAG, "Script done.");
+            }
+            end = std::chrono::system_clock::now();
+
+            int elapsed_milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
+            WsjcppLog::info(TAG, "Elapsed milliseconds: " + std::to_string(elapsed_milliseconds) + "ms");
         }
-
-        if (process.hasError()) {
-            WsjcppLog::err(TAG, "Script failed");
-            WsjcppLog::err(TAG, "Error on run script: " + process.outputString());
-            continue;
-        }
-
-        int nExitCode = process.exitCode();
-        if (nExitCode != 0) {
-            WsjcppLog::err(TAG, "Wrong script exit code " + std::to_string(nExitCode) + "...\n"
-                "\nOutput:" + process.outputString());
-            WsjcppLog::info(TAG, "Wait next...");
-            continue;
-        } else {
-            WsjcppLog::info(TAG, "Output:\n" + process.outputString());
-            WsjcppLog::ok(TAG, "Script done.");
-        }
-        end = std::chrono::system_clock::now();
-
-        int elapsed_milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
-        WsjcppLog::info(TAG, "Elapsed milliseconds: " + std::to_string(elapsed_milliseconds) + "ms");
+        end_all = std::chrono::system_clock::now();
+        int elapsed_milliseconds2 = std::chrono::duration_cast<std::chrono::milliseconds>(end_all - start_all).count();
+        WsjcppLog::info(TAG, "Elapsed for all milliseconds: " + std::to_string(elapsed_milliseconds2) + "ms");
     }
 }
