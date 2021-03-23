@@ -127,26 +127,26 @@ void ScriptsThread::run() {
             process.start(webhook.getTimeoutCommand()*1000);
 
             if (process.isTimeout()) {
-                WsjcppLog::err(TAG, "Finished by timeout " + sWebhookId);
+                WsjcppLog::err(TAG, "Comamnd finished by timeout " + sWebhookId);
                 WsjcppLog::err(TAG, process.outputString());
                 continue;
             }
 
             if (process.hasError()) {
-                WsjcppLog::err(TAG, "Script failed");
-                WsjcppLog::err(TAG, "Error on run script: " + process.outputString());
-                continue;
+                WsjcppLog::err(TAG, "Command failed");
+                WsjcppLog::err(TAG, "Error on run command: " + process.outputString());
+                break;
             }
 
             int nExitCode = process.exitCode();
             if (nExitCode != 0) {
-                WsjcppLog::err(TAG, "Wrong script exit code " + std::to_string(nExitCode) + "...\n"
+                WsjcppLog::err(TAG, "Wrong command exit code " + std::to_string(nExitCode) + "...\n"
                     "\nOutput:" + process.outputString());
                 WsjcppLog::info(TAG, "Wait next...");
-                continue;
+                break;
             } else {
                 WsjcppLog::info(TAG, "Output:\n" + process.outputString());
-                WsjcppLog::ok(TAG, "Script done.");
+                WsjcppLog::ok(TAG, "Command done.");
             }
             end = std::chrono::system_clock::now();
 

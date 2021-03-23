@@ -10,6 +10,7 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
 #include <unistd.h>
 #include <signal.h>
 #include <stdio.h>
@@ -19,6 +20,7 @@
 #include <sysexits.h>
 #include <iostream>
 #include <cstring>
+#include <fcntl.h>
 
 // ----------------------------------------------------------------------
 // DoRunCommand
@@ -120,8 +122,6 @@ void DoRunCommand::run() {
         return;
     }
 
-    
-
     WsjcppLog::info(TAG, "Will be change dir to: '" + m_sDir + "'");
     int nSize = m_vParsedCommand.size();
     WsjcppLog::info(TAG, "Exec command: {" + m_sCommand + "}");
@@ -129,9 +129,17 @@ void DoRunCommand::run() {
         WsjcppLog::info(TAG, "Exec arg" + std::to_string(i)+ ": {" + m_vParsedCommand[i] + "}");
     }
 
-    std::cout << std::flush;
-    std::cerr << std::flush;
-    
+
+    // https://stackoverflow.com/questions/597311/why-does-the-child-process-here-not-print-anything
+    // The C stdout stream internally buffers data. It's likely that your "this is child" 
+    // message is being buffered, and the buffer isn't being flushed by execlp, so it just 
+    // disappears. Try a fflush(stdout); after the printf. Incidentally, you should do this 
+    // before the fork() as well, so that child and parent don't both try to write output 
+    // buffered from before the fork.
+
+    fflush(stdout);
+    fflush(stderr);
+
     pid_t nChildPid = fork();
 
     if(nChildPid < 0) {
@@ -144,12 +152,20 @@ void DoRunCommand::run() {
         return;
     } else if (nChildPid == 0) {
         // child process
-        dup2 (fd[1], STDOUT_FILENO);
-        dup2(1, 2); // redirects stderr to stdout below this line.
+        if (dup2(fd[1], STDOUT_FILENO) < 0) { // redirect from pipe to stdout
+            perror("dup2");
+            return;
+        }
+        if (dup2(STDOUT_FILENO, STDERR_FILENO) < 0) { // redirects stderr to stdout below this line.
+            perror("dup2");
+            return;
+        }
         close(fd[0]);
         close(fd[1]);
+        printf("fork: Child process id=%d\n", getpid());
+        printf("fork: Change dir '%s'\n", m_sDir.c_str());
+
         chdir(m_sDir.c_str());
-        
         // setpgid(nChildPid, nChildPid); //Needed so negative PIDs can kill children of /bin/sh
 
         char **pArgs = new char * [nSize + 1];
@@ -161,18 +177,19 @@ void DoRunCommand::run() {
             std::memcpy(pArgs[n], m_vParsedCommand[n].c_str(), nLen);
             pArgs[n][nLen] = 0;
         }
+        
         // TODO after exec delete from memory
         execvp(
             pArgs[0], // 
             pArgs // first argument must be same like executable file
             // (char *) 0
         );
-        printf("Hello1\n");
         perror("execvp");
         exit(-1);
     }
     
-    // parent process;
+    // parent process
+    WsjcppLog::info(TAG, "Parent process id=" + std::to_string(getpid()));
     // setpgid(nChildPid, ::getpid());
     close(fd[1]);
     int nPipeOut = fd[0];
@@ -184,17 +201,42 @@ void DoRunCommand::run() {
     char buffer[nSizeBuffer];
     std::memset(&buffer, 0, nSizeBuffer);
     try {
-        int nbytes = read(nPipeOut, buffer, nSizeBuffer-1);
-        m_sOutput += std::string(buffer);
-        int status;
-        if ( waitpid(m_nPid, &status, 0) == -1 ) {
-            perror("waitpid() failed");
-            exit(EXIT_FAILURE);
+        fd_set nFdSet;
+        struct timeval timeout;
+        while (true) {
+            FD_ZERO(&nFdSet); /* clear the set */
+            FD_SET(nPipeOut, &nFdSet); /* add our file descriptor to the set */
+            timeout.tv_sec = 0;
+            timeout.tv_usec = 10000;
+
+            int rv = select(nPipeOut + 1, &nFdSet, NULL, NULL, &timeout);
+            if (rv == -1) {
+                perror("select"); // an error accured
+            } else if(rv == 0) {
+                printf("timeout"); // a timeout occured
+            } else {
+                std::memset(&buffer, 0, nSizeBuffer);
+                while (read(nPipeOut, buffer, nSizeBuffer-1) > 0) {
+                    m_sOutput += std::string(buffer);
+                    std::memset(&buffer, 0, nSizeBuffer);
+                }
+            }
+
+            int status;
+            if (waitpid(m_nPid, &status, 0) == -1) {
+                perror("waitpid() failed");
+                exit(EXIT_FAILURE);
+            }
+            if (WIFEXITED(status)) {
+                m_bHasError = false;
+                m_nExitCode = WEXITSTATUS(status);
+                break;
+            }
         }
-        if ( WIFEXITED(status) ) {
-            m_bHasError = false;
-            m_nExitCode = WEXITSTATUS(status);
-        }
+        
+        // close(filedesc);
+        
+        
     } catch (std::bad_alloc& ba) {
         close(nPipeOut);
         m_bHasError = true;
@@ -204,8 +246,6 @@ void DoRunCommand::run() {
     }
     
     close(nPipeOut);
-    
-    WsjcppLog::info(TAG, "m_nExitCode = " + std::to_string(m_nExitCode));
 
     if (m_bFinishedByTimeout) {
         return;
