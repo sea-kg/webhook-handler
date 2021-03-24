@@ -19,6 +19,28 @@ $ sudo apt-get update
 $ sudo apt-get install webhook-handler
 ```
 
+configure:
+```
+$ cd /etc/webhook-handler 
+$ cp webhook-handler-conf.yml.inc webhook-handler-conf.yml
+$ vi webhook-handler-conf.yml
+```
+
+systemd. reload and restart
+```
+$ sudo systemctl daemon-reload
+$ sudo systemctl enable webhook-handler
+$ sudo systemctl restart webhook-handler.service
+```
+
+systemd. uninstall
+```
+$ sudo systemctl stop webhook-handler.service
+$ sudo systemctl disable webhook-handler.service
+$ sudo rm /etc/systemd/system/webhook-handler.service
+$ sudo systemctl daemon-reload
+$ sudo systemctl reset-failed
+```
 
 ## Build on debian/ubuntu
 

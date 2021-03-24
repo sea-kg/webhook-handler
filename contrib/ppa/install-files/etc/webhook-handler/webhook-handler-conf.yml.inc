@@ -5,9 +5,9 @@ server:
   max-script-threads: 1
   max-deque: 100
   allow-status-page: yes
-  status-page-url-path: "/wh/status"
-  log-dir: "/var/lib/webhook-handler/logs"
-  income-webhooks-dir: "/var/lib/webhook-handler/income-webhooks"
+  status-page-url-path: /wh/status
+  log-dir: /var/lib/webhook-handler/logs
+  income-webhooks-dir: /var/lib/webhook-handler/income-webhooks
 
 # webhook-handlers:
 #   docker_compose_example_restart:

@@ -51,14 +51,13 @@ int main(int argc, char* argv[]) {
         return 0;
     }
 
-    std::string sWorkspace = "./data"; // default workspace
+    std::string sWorkspace = "/etc/webhook-handler"; // default workspace with config
     if (helpParseArgs.has("--dir")) {
         sWorkspace = helpParseArgs.option("--dir");
-        // TODO check directory existing and apply dir
     }
 
     if (!WsjcppCore::dirExists(sWorkspace)) {
-        std::cout << "Error: Folder " << sWorkspace << " does not exists \n";
+        std::cout << "Error: Folder '" << sWorkspace << "' does not exists \n";
         return -1;
     }
 
