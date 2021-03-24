@@ -12,9 +12,12 @@
 
 class DequeWebhooks {
     public:
-        DequeWebhooks(int nMaxDeque);
+        DequeWebhooks(int nMaxDeque, const std::string &sIncomeWebhookDir);
         std::string popWebhookId();
-        void pushWebhookId(const std::string &sWebhooksId);
+        void pushWebhookId(
+            const std::string &sWebhooksId,
+            const std::string &sPayloadContent
+        );
         void cleanup();
 
     private:
@@ -23,6 +26,7 @@ class DequeWebhooks {
 
         std::mutex m_mtxDeque;
         std::deque<std::string> m_dequeWebhooksId;
+        std::string m_sIncomeWebhookDir;
 };
 
 #endif // DEQUE_WEBHOOKS_H

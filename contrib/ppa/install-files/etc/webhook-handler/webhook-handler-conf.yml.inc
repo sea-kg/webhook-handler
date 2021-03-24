@@ -1,0 +1,56 @@
+# server configuration
+server:
+  port: 8002
+  wait-seconds-between-run-scripts: 15
+  max-script-threads: 1
+  max-deque: 100
+  allow-status-page: yes
+  status-page-url-path: "/wh/status"
+  log-dir: "/var/lib/webhook-handler/logs"
+  income-webhooks-dir: "/var/lib/webhook-handler/income-webhooks"
+
+# webhook-handlers:
+#   docker_compose_example_restart:
+#     webhook-url-path: "/wh/M9ClfMW9ea"
+#     enabled: no
+#     timeout-command: 600
+#     workdir: /some/path2
+#     commands:
+#       - docker pull some/docker
+#       - docker-compose restart
+# 
+#   nodejs_example_rebuild:
+#     webhook-url-path: "/wh/eSdR93Sq2w"
+#     workdir: "../"
+#     user: www-data
+#     timeout-command: 600
+#     commands:
+#       - git pull
+#       - npm run build
+#       # TODO if need check build
+#       - cp -f dist/* /var/www/html/some_proj
+#       # wget http://webhook.com/somehook
+# 
+#   sample_test:
+#     webhook-url-path: "/wh/sample_test"
+#     workdir: "./test"
+#     user: www-data
+#     timeout-command: 600
+#     commands:
+#       - echo "123" >> "sample_test"
+#       - python3 process_hook.py %WEBHOOK_DATA_FILE_PATH%
+# 
+#   github_test:
+#     webhook-url-path: "/wh/github_test"
+#     user: www-data
+#     timeout-command: 600
+#     github-json-filter-rules: # expected application/json income
+#       ref:
+#         - "refs/heads/master"
+#     workdir: "./test"
+#     commands:
+#       - pwd
+#       - ./some.sh
+#       - echo somesomesome
+#       - echo 123 >> github_test
+# 

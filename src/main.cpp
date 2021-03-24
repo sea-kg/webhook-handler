@@ -80,7 +80,10 @@ int main(int argc, char* argv[]) {
 
     if (helpParseArgs.has("start")) {
         WsjcppLog::info(TAG, "Starting...");
-        DequeWebhooks *pDequeWebhooks = new DequeWebhooks(pConfig->getMaxDeque());
+        DequeWebhooks *pDequeWebhooks = new DequeWebhooks(
+            pConfig->getMaxDeque(),
+            pConfig->getIncomeWebhookDir()
+        );
 
         for (int i = 0; i < pConfig->getMaxScriptThreads(); i++) {
             ScriptsThread *thr = new ScriptsThread(

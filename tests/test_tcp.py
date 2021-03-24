@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 import time
@@ -12,7 +12,7 @@ import random
 import errno
 
 HOST = '127.0.0.1'
-PORT = 8001
+PORT = 8002
 
 try:
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

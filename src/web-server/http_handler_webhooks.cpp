@@ -38,7 +38,8 @@ bool HttpHandlerWebhooks::handle(const std::string &sWorkerId, WsjcppLightWebHtt
     std::string _tag = TAG + "-" + sWorkerId;
     WsjcppLightWebHttpResponse response(pRequest->getSockFd());
     std::string sPath = pRequest->getRequestPath();
-    m_pDequeWebhooks->pushWebhookId(sPath);
+    // WsjcppLog::info(_tag, pRequest->getRequestBody());
+    m_pDequeWebhooks->pushWebhookId(sPath, pRequest->getRequestBody());
     response.ok().sendText("OK");
     return true;
 }

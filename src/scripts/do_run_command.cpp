@@ -1,5 +1,5 @@
 
-#include "dorunscript.h"
+#include "do_run_command.h"
 #include <wsjcpp_core.h>
 #include <mutex>
 #include <sstream>
@@ -10,6 +10,7 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
 #include <unistd.h>
 #include <signal.h>
 #include <stdio.h>
@@ -19,53 +20,56 @@
 #include <sysexits.h>
 #include <iostream>
 #include <cstring>
-
-DoRunScript::DoRunScript(
-    const std::string &sDir,
-    const std::string &sScript
-) {
-    TAG = "DoRunScript";
-    m_sDir = sDir;
-    m_sScript = sScript;
-}
+#include <fcntl.h>
 
 // ----------------------------------------------------------------------
+// DoRunCommand
 
-bool DoRunScript::hasError() {
+DoRunCommand::DoRunCommand(
+    const std::string &sDir,
+    const std::vector<std::string> &vArgs
+) {
+    TAG = "DoRunCommand";
+    m_sDir = sDir;
+    m_vArgs = vArgs;
+    m_sCommand = WsjcppCore::join(vArgs, " ");
+    // TODO will be not work some 'cd ..'
+}
+
+bool DoRunCommand::hasError() {
     return m_bHasError;
 }
 
 // ----------------------------------------------------------------------
 
-int DoRunScript::exitCode() {
+int DoRunCommand::exitCode() {
     return m_nExitCode;
 }
 
 // ----------------------------------------------------------------------
 
-bool DoRunScript::isTimeout() {
+bool DoRunCommand::isTimeout() {
     return m_bFinishedByTimeout;
 }
 
 // ----------------------------------------------------------------------
 
-const std::string &DoRunScript::outputString() {
+const std::string &DoRunCommand::outputString() {
     return m_sOutput;
 }
 
 // ----------------------------------------------------------------------
 
 void* newProcessThread(void *arg) {
-    // Log::info("newRequest", "");
-    DoRunScript *m_DoRunScript = (DoRunScript *)arg;
+    DoRunCommand *m_pDoRunCommand = (DoRunCommand *)arg;
     pthread_detach(pthread_self());
-    m_DoRunScript->run();
+    m_pDoRunCommand->run();
     return 0;
 }
 
 // ----------------------------------------------------------------------
 
-void DoRunScript::start(int nTimeoutMS) {
+void DoRunCommand::start(int nTimeoutMS) {
     m_bFinished = false;
     m_bFinishedByTimeout = false;
     m_nTimeoutMS = nTimeoutMS;
@@ -75,7 +79,7 @@ void DoRunScript::start(int nTimeoutMS) {
     pthread_create(&m_pProcessThread, NULL, &newProcessThread, (void *)this);
 
     while (nTimeWait < m_nTimeoutMS && !m_bFinished) {
-        // Log::info(TAG, "Wait: " + std::to_string(nTimeWait) + "ms");
+        WsjcppLog::info(TAG, "Wait: " + std::to_string(nSleepMS) + "ms");
         std::this_thread::sleep_for(std::chrono::milliseconds(nSleepMS));
         nTimeWait = nTimeWait + nSleepMS;
     }
@@ -94,9 +98,7 @@ void DoRunScript::start(int nTimeoutMS) {
     }
 }
 
-// ----------------------------------------------------------------------
-
-void DoRunScript::run() {
+void DoRunCommand::run() {
     m_nExitCode = 1;
     m_sOutput = "";
     m_bHasError = false;
@@ -116,6 +118,16 @@ void DoRunScript::run() {
         return;
     }
 
+    WsjcppLog::info(TAG, "Will be change dir to: '" + m_sDir + "'");
+    int nSize = m_vArgs.size();
+    WsjcppLog::info(TAG, "Exec command: {" + m_sCommand + "}");
+    for (int i = 0; i < nSize; i++) {
+        WsjcppLog::info(TAG, "Exec arg" + std::to_string(i)+ ": {" + m_vArgs[i] + "}");
+    }
+
+    fflush(stdout);
+    fflush(stderr);
+
     pid_t nChildPid = fork();
 
     if(nChildPid < 0) {
@@ -128,43 +140,64 @@ void DoRunScript::run() {
         return;
     } else if (nChildPid == 0) {
         // child process
-        dup2 (fd[1], STDOUT_FILENO);
-        dup2(1, 2); // redirects stderr to stdout below this line.
+        if (dup2(fd[1], STDOUT_FILENO) < 0) { // redirect from pipe to stdout
+            perror("dup2");
+            return;
+        }
+        if (dup2(STDOUT_FILENO, STDERR_FILENO) < 0) { // redirects stderr to stdout below this line.
+            perror("dup2");
+            return;
+        }
         close(fd[0]);
         close(fd[1]);
+        printf("fork: Child process id=%d\n", getpid());
+        printf("fork: Change dir '%s'\n", m_sDir.c_str());
+
         chdir(m_sDir.c_str());
         // setpgid(nChildPid, nChildPid); //Needed so negative PIDs can kill children of /bin/sh
-        execlp(
-            m_sScript.c_str(), // 
-            m_sScript.c_str(), // first argument must be same like executable file
-            (char *) 0
-        );
+
+        char **pArgs = new char * [nSize + 1];
+        pArgs[nSize] = (char *) 0;
+        pArgs[0] = new char[m_vArgs[0].length() + 1];
+        for (int n = 0; n < nSize; n++) {
+            int nLen = m_vArgs[n].length();
+            pArgs[n] = new char[nLen + 1];
+            std::memcpy(pArgs[n], m_vArgs[n].c_str(), nLen);
+            pArgs[n][nLen] = 0;
+        }
         
-        perror("execl");
+        // TODO after exec delete from memory
+        execvp(
+            pArgs[0], // 
+            pArgs // first argument must be same like executable file
+            // (char *) 0
+        );
+        perror("execvp");
         exit(-1);
     }
     
-    // parent process;
+    // parent process
+    WsjcppLog::info(TAG, "Parent process id=" + std::to_string(getpid()));
     // setpgid(nChildPid, ::getpid());
     close(fd[1]);
     int nPipeOut = fd[0];
     m_nPid = nChildPid;
-    // Log::info(TAG, "PID: " + std::to_string(m_nPid));
 
     m_sOutput = "";
     const int nSizeBuffer = 4096;
     char buffer[nSizeBuffer];
     std::memset(&buffer, 0, nSizeBuffer);
     try {
-        int nbytes = read(nPipeOut, buffer, nSizeBuffer-1);
-        m_sOutput += std::string(buffer);
+        while (read(nPipeOut, buffer, nSizeBuffer-1) > 0) {
+            m_sOutput += std::string(buffer);
+            std::memset(&buffer, 0, nSizeBuffer);
+        }
         int status;
-        if ( waitpid(m_nPid, &status, 0) == -1 ) {
+        if (waitpid(m_nPid, &status, 0) == -1) {
             perror("waitpid() failed");
             exit(EXIT_FAILURE);
         }
-
-        if ( WIFEXITED(status) ) {
+        if (WIFEXITED(status)) {
             m_bHasError = false;
             m_nExitCode = WEXITSTATUS(status);
         }
@@ -172,13 +205,11 @@ void DoRunScript::run() {
         close(nPipeOut);
         m_bHasError = true;
         m_nExitCode = -1;
-        WsjcppLog::err("DoRunProcess", "bad alloc");
+        std::cerr << "bad alloc" << std::endl;
         return;
     }
     
     close(nPipeOut);
-
-    // Log::info(TAG, "Process exit code: " + std::to_string(m_nExitCode));
 
     if (m_bFinishedByTimeout) {
         return;
@@ -225,3 +256,22 @@ void DoRunScript::run() {
 }
 
 // ----------------------------------------------------------------------
+
+std::string DoRunCommand::exec(const char* cmd) {
+    char buffer[128];
+    std::string result = "";
+    FILE* pipe = popen(cmd, "r");
+    if (!pipe) {
+        throw std::runtime_error("popen() failed!");
+    }
+    try {
+        while (fgets(buffer, sizeof buffer, pipe) != NULL) {
+            result += buffer;
+        }
+    } catch (...) {
+        pclose(pipe);
+        throw;
+    }
+    pclose(pipe);
+    return result;
+}

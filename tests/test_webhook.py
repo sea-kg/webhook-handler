@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 import time
@@ -13,7 +13,7 @@ import errno
 import requests
 
 HOST = 'localhost'
-PORT = 8001
+PORT = 8002
 jsonData = {
     "some": "some",
     "some1": "some1",
@@ -30,7 +30,7 @@ jsonData = {
     "some12": "some5",
 }
 try:
-    r = requests.post('http://' + HOST + ':' + str(PORT) + '/wh/eSdR93Sq1w', json=jsonData)
+    r = requests.post('http://' + HOST + ':' + str(PORT) + '/wh/sample_test', json=jsonData)
     print("Status Code: " + str(r.status_code))
     print("Body:\n>>>\n" + r.text + "\n<<<")
 

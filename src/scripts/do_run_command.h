@@ -1,17 +1,18 @@
-#ifndef DORUNSCRIPT_H
-#define DORUNSCRIPT_H
+#ifndef DO_RUN_COMMAND_H
+#define DO_RUN_COMMAND_H
 
 #include <string>
 #include <stdio.h>
 #include <iostream>
 #include <mutex>
 #include <deque>
+#include <vector>
 
-class DoRunScript {
+class DoRunCommand {
     public:
-        DoRunScript(
+        DoRunCommand(
             const std::string &sDir,
-            const std::string &sScript
+            const std::vector<std::string> &vArgs
         );
         void start(int nTimeoutMS);
         bool hasError();
@@ -21,9 +22,12 @@ class DoRunScript {
         void run();
 
     private:
+        std::string exec(const char* cmd);
+        
         std::string TAG;
         std::string m_sDir;
-        std::string m_sScript;
+        std::vector<std::string> m_vArgs;
+        std::string m_sCommand;
         int m_nTimeoutMS;
         pid_t m_nPid;
         pthread_t m_pProcessThread;
@@ -35,4 +39,4 @@ class DoRunScript {
 };
 
 
-#endif // DORUNSCRIPT_H
+#endif // DO_RUN_COMMAND_H

@@ -1,7 +1,7 @@
 #include "scripts_thread.h"
 #include <unistd.h>
 
-#include <dorunscript.h>
+#include <do_run_command.h>
 #include <iostream>
 #include <sstream>
 #include <chrono>
@@ -92,26 +92,7 @@ int ScriptsThread::runScript(const std::string &sCommand) {
 // ---------------------------------------------------------------------
 
 void ScriptsThread::run() {
-    // TODO: BUG: so here can be problem with mysql connection after 7-8 hours (terminate connection on MySQL side)
-    // SOLUTION migrate to PostgreSQL
-
-    // TODO check if game ended
-
     WsjcppLog::info(TAG, "Starting thread...");
-    /*if (QString::fromStdString(m_teamConf.ipAddress()).isEmpty()) {
-        WsjcppLog::err(TAG, "User IP Address is empty!!!");
-        return;
-    }*/
-
-    // std::string sScriptPath = m_serviceConf.scriptPath();
-    /*
-    // already checked on start
-    if (!WsjcppLog::fileExists(sScriptPath)) {
-        WsjcppLog::err(TAG, "FAIL: Script Path to checker not found '" + sScriptPath + "'");
-        // TODO shit status
-        return;
-    }*/
-
     while(1) {
 
         std::this_thread::sleep_for(std::chrono::seconds(m_nWaitSecondsBetweenRunScripts));
@@ -121,7 +102,7 @@ void ScriptsThread::run() {
             continue;
         }
 
-        WsjcppLog::info(TAG, "Start execute webhook " + sWebhookId);
+        WsjcppLog::info(TAG, "Start handling webhook " + sWebhookId);
         int nSize = m_pConfig->webhooksConf().size();
         Webhook webhook;
         bool bFound = false;
@@ -136,37 +117,44 @@ void ScriptsThread::run() {
             continue;
         }
 
-        std::chrono::time_point<std::chrono::system_clock> start, end;
-        start = std::chrono::system_clock::now();
-        
-        DoRunScript process(webhook.getWorkDir(), webhook.getCommands()[0]);
-        process.start(webhook.getTimeoutCommand()*1000);
+        std::chrono::time_point<std::chrono::system_clock> start_all, end_all, start, end;
+        start_all = std::chrono::system_clock::now();
+        std::vector<WebhookShellCommand> vCommands = webhook.getCommands();
+        for (int i = 0; i < vCommands.size(); i++) {
+            start = std::chrono::system_clock::now();
 
-        if (process.isTimeout()) {
-            WsjcppLog::err(TAG, "Finished by timeout " + sWebhookId);
-            WsjcppLog::err(TAG, process.outputString());
-            continue;
+            DoRunCommand process(webhook.getWorkDir(), vCommands[i].getArgs());
+            process.start(webhook.getTimeoutCommand()*1000);
+
+            if (process.isTimeout()) {
+                WsjcppLog::err(TAG, "Comamnd finished by timeout " + sWebhookId);
+                WsjcppLog::err(TAG, process.outputString());
+                continue;
+            }
+
+            if (process.hasError()) {
+                WsjcppLog::err(TAG, "Command failed");
+                WsjcppLog::err(TAG, "Error on run command: " + process.outputString());
+                break;
+            }
+
+            int nExitCode = process.exitCode();
+            if (nExitCode != 0) {
+                WsjcppLog::err(TAG, "Wrong command exit code " + std::to_string(nExitCode) + "...\n"
+                    "\nOutput:" + process.outputString());
+                WsjcppLog::info(TAG, "Wait next...");
+                break;
+            } else {
+                WsjcppLog::info(TAG, "Output:\n" + process.outputString());
+                WsjcppLog::ok(TAG, "Command done.");
+            }
+            end = std::chrono::system_clock::now();
+
+            int elapsed_milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
+            WsjcppLog::info(TAG, "Elapsed milliseconds: " + std::to_string(elapsed_milliseconds) + "ms");
         }
-
-        if (process.hasError()) {
-            WsjcppLog::err(TAG, "Script failed");
-            WsjcppLog::err(TAG, "Error on run script: " + process.outputString());
-            continue;
-        }
-
-        int nExitCode = process.exitCode();
-        if (nExitCode != 0) {
-            WsjcppLog::err(TAG, "Wrong script exit code " + std::to_string(nExitCode) + "...\n"
-                "\n" + process.outputString());
-            continue;
-        } else {
-            WsjcppLog::info(TAG, "Output:\n" + process.outputString());
-            WsjcppLog::ok(TAG, "Script done.");
-
-        }
-        end = std::chrono::system_clock::now();
-
-        int elapsed_milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
-        WsjcppLog::info(TAG, "Elapsed milliseconds: " + std::to_string(elapsed_milliseconds) + "ms");
+        end_all = std::chrono::system_clock::now();
+        int elapsed_milliseconds2 = std::chrono::duration_cast<std::chrono::milliseconds>(end_all - start_all).count();
+        WsjcppLog::info(TAG, "Elapsed for all milliseconds: " + std::to_string(elapsed_milliseconds2) + "ms");
     }
 }

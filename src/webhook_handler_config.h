@@ -5,6 +5,20 @@
 #include <vector>
 #include <wsjcpp_yaml.h>
 
+class WebhookShellCommand {
+    public:
+        WebhookShellCommand(std::string sCommand);
+        bool isValid(std::string &sError);
+        const std::vector<std::string> &getArgs() const;
+
+    private:
+        void parseCommand();
+        std::string m_sCommand;
+        std::vector<std::string> m_vArgs;
+};
+
+// ---------------------------------------------------------------------
+
 class Webhook {
     public:
         Webhook();
@@ -15,8 +29,8 @@ class Webhook {
         void setWorkDir(const std::string &sWorkDir);
         std::string getWorkDir() const;
 
-        void setCommands(const std::vector<std::string> &sScriptPath);
-        const std::vector<std::string> &getCommands() const;
+        void setCommands(const std::vector<WebhookShellCommand> &sScriptPath);
+        const std::vector<WebhookShellCommand> &getCommands() const;
 
         void setTimeoutCommand(int nSec);
         int getTimeoutCommand() const;
@@ -30,7 +44,7 @@ class Webhook {
         std::string m_sWebhookUrlPath;
         std::string m_sWorkDir;
         std::string m_sUser;
-        std::vector<std::string> m_vCommands;
+        std::vector<WebhookShellCommand> m_vCommands;
 };
 
 // ---------------------------------------------------------------------
@@ -43,7 +57,7 @@ class WebhookHandlerConfig {
         int getMaxDeque();
         int getMaxScriptThreads();
         int getWaitSecondsBetweenRunScripts();
-
+        std::string getIncomeWebhookDir();
         const std::vector<Webhook> &webhooksConf();
 
         bool isAllowedStatusPage();
@@ -63,6 +77,7 @@ class WebhookHandlerConfig {
         std::vector<Webhook> m_vWebhooksConf;
         bool m_bAllowedStatusPage;
         std::string m_sStatusPageUrlPath;
+        std::string m_sIncomeWebhooksDir;
 };
 
 #endif // WEBHOOK_HANDLER_CONFIG
