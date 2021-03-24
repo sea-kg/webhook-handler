@@ -8,6 +8,9 @@ Look here https://github.com/topics/webhook
 
 [![Build Status](https://api.travis-ci.com/sea-kg/webhook-handler.svg?branch=master)](https://travis-ci.com/sea-kg/webhook-handler.svg) [![Github Stars](https://img.shields.io/github/stars/sea-kg/webhook-handler.svg?label=github%20%E2%98%85)](https://github.com/sea-kg/webhook-handler) [![Github Stars](https://img.shields.io/github/contributors/sea-kg/webhook-handler.svg)](https://github.com/sea-kg/webhook-handler) [![Github Forks](https://img.shields.io/github/forks/sea-kg/webhook-handler.svg?label=github%20forks)](https://github.com/sea-kg/webhook-handler/network/members) [![Total alerts](https://img.shields.io/lgtm/alerts/g/sea-kg/webhook-handler.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/sea-kg/webhook-handler/alerts/) [![Language grade: C/C++](https://img.shields.io/lgtm/grade/cpp/g/sea-kg/webhook-handler.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/sea-kg/webhook-handler/context:cpp)
 
+## Install
+
+[Ubuntu. PPA](https://launchpad.net/~sea5kg/+archive/ubuntu/webhook-handler)
 
 ## Build on debian/ubuntu
 
