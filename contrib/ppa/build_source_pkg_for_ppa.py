@@ -195,7 +195,9 @@ print( " -> DONE ")
 
 dput_filename = "webhook-handler_" + current_version + "-" + ppa_name_ + "_source.changes"
 
-os.system("debsign -k 3AA3105C5766233DD2F243A3A742BE2E628592AC " + dput_filename)
+if os.system("debsign -k 3AA3105C5766233DD2F243A3A742BE2E628592AC " + dput_filename) != 0:
+    print( " -> FAILED ")
+    sys.exit(-1)
 
 sys.stdout.write("Are you want try upload source package to ppa.launchpad? [y/n]: ")
 ask_upload_ = input().lower()

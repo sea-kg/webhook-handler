@@ -10,7 +10,15 @@ Look here https://github.com/topics/webhook
 
 ## Install
 
+### Ubuntu PPA
 [Ubuntu. PPA](https://launchpad.net/~sea5kg/+archive/ubuntu/webhook-handler)
+
+```
+$ sudo add-apt-repository ppa:sea5kg/webhook-handler
+$ sudo apt-get update
+$ sudo apt-get install webhook-handler
+```
+
 
 ## Build on debian/ubuntu
 
