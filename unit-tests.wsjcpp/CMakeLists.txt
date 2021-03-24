@@ -57,8 +57,10 @@ list (APPEND WSJCPP_SOURCES "../src.wsjcpp/HowardHinnant_date/date.h")
 
 # webhook-handler:v0.3.0
 list (APPEND WSJCPP_INCLUDE_DIRS "../src")
-list (APPEND WSJCPP_SOURCES "../src/scripts/do_run_commands.h")
-list (APPEND WSJCPP_SOURCES "../src/scripts/do_run_commands.cpp")
+list (APPEND WSJCPP_SOURCES "../src/scripts/do_run_command.h")
+list (APPEND WSJCPP_SOURCES "../src/scripts/do_run_command.cpp")
+list (APPEND WSJCPP_SOURCES "../src/webhook_handler_config.cpp")
+list (APPEND WSJCPP_SOURCES "../src/webhook_handler_config.h")
 
 # unit-tests
 list (APPEND WSJCPP_INCLUDE_DIRS "src")

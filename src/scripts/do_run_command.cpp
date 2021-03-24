@@ -27,16 +27,13 @@
 
 DoRunCommand::DoRunCommand(
     const std::string &sDir,
-    const std::string &sCommand
+    const std::vector<std::string> &vArgs
 ) {
     TAG = "DoRunCommand";
     m_sDir = sDir;
-    m_sCommand = sCommand;
-    m_vParsedCommand = DoRunCommand::parseCommands(m_sCommand);
-
-    // TODO parse args 
-    // TODO check args. don't allow '>>' '>' 2> 1> &> and etc
-    // TODO wiil be not work some 'cd ..'
+    m_vArgs = vArgs;
+    m_sCommand = WsjcppCore::join(vArgs, " ");
+    // TODO will be not work some 'cd ..'
 }
 
 bool DoRunCommand::hasError() {
@@ -64,7 +61,6 @@ const std::string &DoRunCommand::outputString() {
 // ----------------------------------------------------------------------
 
 void* newProcessThread(void *arg) {
-    // Log::info("newRequest", "");
     DoRunCommand *m_pDoRunCommand = (DoRunCommand *)arg;
     pthread_detach(pthread_self());
     m_pDoRunCommand->run();
@@ -83,7 +79,7 @@ void DoRunCommand::start(int nTimeoutMS) {
     pthread_create(&m_pProcessThread, NULL, &newProcessThread, (void *)this);
 
     while (nTimeWait < m_nTimeoutMS && !m_bFinished) {
-        // Log::info(TAG, "Wait: " + std::to_string(nTimeWait) + "ms");
+        WsjcppLog::info(TAG, "Wait: " + std::to_string(nSleepMS) + "ms");
         std::this_thread::sleep_for(std::chrono::milliseconds(nSleepMS));
         nTimeWait = nTimeWait + nSleepMS;
     }
@@ -123,19 +119,11 @@ void DoRunCommand::run() {
     }
 
     WsjcppLog::info(TAG, "Will be change dir to: '" + m_sDir + "'");
-    int nSize = m_vParsedCommand.size();
+    int nSize = m_vArgs.size();
     WsjcppLog::info(TAG, "Exec command: {" + m_sCommand + "}");
     for (int i = 0; i < nSize; i++) {
-        WsjcppLog::info(TAG, "Exec arg" + std::to_string(i)+ ": {" + m_vParsedCommand[i] + "}");
+        WsjcppLog::info(TAG, "Exec arg" + std::to_string(i)+ ": {" + m_vArgs[i] + "}");
     }
-
-
-    // https://stackoverflow.com/questions/597311/why-does-the-child-process-here-not-print-anything
-    // The C stdout stream internally buffers data. It's likely that your "this is child" 
-    // message is being buffered, and the buffer isn't being flushed by execlp, so it just 
-    // disappears. Try a fflush(stdout); after the printf. Incidentally, you should do this 
-    // before the fork() as well, so that child and parent don't both try to write output 
-    // buffered from before the fork.
 
     fflush(stdout);
     fflush(stderr);
@@ -170,11 +158,11 @@ void DoRunCommand::run() {
 
         char **pArgs = new char * [nSize + 1];
         pArgs[nSize] = (char *) 0;
-        pArgs[0] = new char[m_vParsedCommand[0].length() + 1];
+        pArgs[0] = new char[m_vArgs[0].length() + 1];
         for (int n = 0; n < nSize; n++) {
-            int nLen = m_vParsedCommand[n].length();
+            int nLen = m_vArgs[n].length();
             pArgs[n] = new char[nLen + 1];
-            std::memcpy(pArgs[n], m_vParsedCommand[n].c_str(), nLen);
+            std::memcpy(pArgs[n], m_vArgs[n].c_str(), nLen);
             pArgs[n][nLen] = 0;
         }
         
@@ -194,49 +182,25 @@ void DoRunCommand::run() {
     close(fd[1]);
     int nPipeOut = fd[0];
     m_nPid = nChildPid;
-    // Log::info(TAG, "PID: " + std::to_string(m_nPid));
 
     m_sOutput = "";
     const int nSizeBuffer = 4096;
     char buffer[nSizeBuffer];
     std::memset(&buffer, 0, nSizeBuffer);
     try {
-        fd_set nFdSet;
-        struct timeval timeout;
-        while (true) {
-            FD_ZERO(&nFdSet); /* clear the set */
-            FD_SET(nPipeOut, &nFdSet); /* add our file descriptor to the set */
-            timeout.tv_sec = 0;
-            timeout.tv_usec = 10000;
-
-            int rv = select(nPipeOut + 1, &nFdSet, NULL, NULL, &timeout);
-            if (rv == -1) {
-                perror("select"); // an error accured
-            } else if(rv == 0) {
-                printf("timeout"); // a timeout occured
-            } else {
-                std::memset(&buffer, 0, nSizeBuffer);
-                while (read(nPipeOut, buffer, nSizeBuffer-1) > 0) {
-                    m_sOutput += std::string(buffer);
-                    std::memset(&buffer, 0, nSizeBuffer);
-                }
-            }
-
-            int status;
-            if (waitpid(m_nPid, &status, 0) == -1) {
-                perror("waitpid() failed");
-                exit(EXIT_FAILURE);
-            }
-            if (WIFEXITED(status)) {
-                m_bHasError = false;
-                m_nExitCode = WEXITSTATUS(status);
-                break;
-            }
+        while (read(nPipeOut, buffer, nSizeBuffer-1) > 0) {
+            m_sOutput += std::string(buffer);
+            std::memset(&buffer, 0, nSizeBuffer);
         }
-        
-        // close(filedesc);
-        
-        
+        int status;
+        if (waitpid(m_nPid, &status, 0) == -1) {
+            perror("waitpid() failed");
+            exit(EXIT_FAILURE);
+        }
+        if (WIFEXITED(status)) {
+            m_bHasError = false;
+            m_nExitCode = WEXITSTATUS(status);
+        }
     } catch (std::bad_alloc& ba) {
         close(nPipeOut);
         m_bHasError = true;
@@ -289,47 +253,6 @@ void DoRunCommand::run() {
     }
     m_bFinished = true;
     // Log::info(TAG, "Finished");
-}
-
-// ----------------------------------------------------------------------
-
-std::vector<std::string> DoRunCommand::parseCommands(const std::string& sCommands) {
-    std::string sToken = "";
-    std::vector<std::string> sArgs;
-    int nState = 0;
-    for (int i = 0; i < sCommands.length(); i++) {
-        if (nState == 0 && sCommands[i] == '"') {
-            sToken += sCommands[i];
-            nState = 1; // string double quote
-        } else if (nState == 1 && sCommands[i] != '"') {
-            sToken += sCommands[i];
-        } else if (nState == 1 && sCommands[i] == '"') {
-            sToken += sCommands[i];
-            nState = 0; // end string double quote
-        } else if (nState == 0 && sCommands[i] == '\'') {
-            sToken += sCommands[i];
-            nState = 2; // string single quote
-        } else if (nState == 2 && sCommands[i] != '\'') {
-            sToken += sCommands[i];
-        } else if (nState == 2 && sCommands[i] == '\'') {
-            sToken += sCommands[i];
-            nState = 0; // end string double quote
-        } else if (nState == 0 && sCommands[i] != ' ') {
-            sToken += sCommands[i];
-        } else if (nState == 0 && sCommands[i] == ' ') {
-            sToken = WsjcppCore::trim(sToken);
-            if (sToken != "") {
-                sArgs.push_back(sToken);
-                sToken = "";
-            }
-        }
-    }
-    sToken = WsjcppCore::trim(sToken);
-    if (sToken != "") {
-        sArgs.push_back(sToken);
-    }
-    // = WsjcppCore::split(sCommands, " ");
-    return sArgs;
 }
 
 // ----------------------------------------------------------------------

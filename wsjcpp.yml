@@ -13,7 +13,6 @@ origins:
 keywords:
   - "c++"
   - "webhook-handler"
-  - "webhook-hdl2703"
   - "webhook"
   - "server"
 
@@ -55,9 +54,15 @@ unit-tests:
     - name: "ParseCommandsArgs"
       description: ""
 distribution:
-  - source-file: "src/scripts/do_run_commands.h"
-    target-file: "do_run_commands.h"
+  - source-file: "src/scripts/do_run_command.h"
+    target-file: "do_run_command.h"
     type: "source-code"
-  - source-file: "src/scripts/do_run_commands.cpp"
-    target-file: "do_run_commands.cpp"
+  - source-file: "src/scripts/do_run_command.cpp"
+    target-file: "do_run_command.cpp"
+    type: "source-code"
+  - source-file: "src/webhook_handler_config.cpp"
+    target-file: "webhook_handler_config.cpp"
+    type: "source-code"
+  - source-file: "src/webhook_handler_config.h"
+    target-file: "webhook_handler_config.h"
     type: "source-code"

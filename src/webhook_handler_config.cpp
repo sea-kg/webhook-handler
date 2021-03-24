@@ -7,6 +7,73 @@
 #include <sstream>
 #include <wsjcpp_core.h>
 
+// WebhookShellCommand
+WebhookShellCommand::WebhookShellCommand(std::string sCommand) {
+    m_sCommand = sCommand;
+    this->parseCommand();
+}
+
+bool WebhookShellCommand::isValid(std::string &sError) {
+    sError = "";
+    for (int i = 0; i < m_vArgs.size(); i++) {
+        std::string sArg = m_vArgs[i];
+        if (
+            sArg == ">>"
+            || sArg == ">"
+            || sArg == "2>"
+            || sArg == "1>"
+            || sArg == "&>"
+        ) {
+            sError = "Did not allowed use a '" + sArg + "'";
+            return false;
+        }
+    }
+    return true;
+}
+
+const std::vector<std::string> &WebhookShellCommand::getArgs() const {
+    return m_vArgs;
+}
+
+void WebhookShellCommand::parseCommand() {
+    std::string sToken = "";
+    int nState = 0;
+    for (int i = 0; i < m_sCommand.length(); i++) {
+        if (nState == 0 && m_sCommand[i] == '"') {
+            sToken += m_sCommand[i];
+            nState = 1; // string double quote
+        } else if (nState == 1 && m_sCommand[i] != '"') {
+            sToken += m_sCommand[i];
+        } else if (nState == 1 && m_sCommand[i] == '"') {
+            sToken += m_sCommand[i];
+            nState = 0; // end string double quote
+        } else if (nState == 0 && m_sCommand[i] == '\'') {
+            sToken += m_sCommand[i];
+            nState = 2; // string single quote
+        } else if (nState == 2 && m_sCommand[i] != '\'') {
+            sToken += m_sCommand[i];
+        } else if (nState == 2 && m_sCommand[i] == '\'') {
+            sToken += m_sCommand[i];
+            nState = 0; // end string double quote
+        } else if (nState == 0 && m_sCommand[i] != ' ') {
+            sToken += m_sCommand[i];
+        } else if (nState == 0 && m_sCommand[i] == ' ') {
+            sToken = WsjcppCore::trim(sToken);
+            if (sToken != "") {
+                m_vArgs.push_back(sToken);
+                sToken = "";
+            }
+        }
+    }
+    sToken = WsjcppCore::trim(sToken);
+    if (sToken != "") {
+        m_vArgs.push_back(sToken);
+    }
+}
+
+// ----------------------------------------------------------------------
+// Webhook
+
 Webhook::Webhook(){
     m_nScriptWaitInSec = 10;
 }
@@ -27,14 +94,13 @@ std::string Webhook::getWorkDir() const {
     return m_sWorkDir;
 }
 
-void Webhook::setCommands(const std::vector<std::string> &vCommands) {
+void Webhook::setCommands(const std::vector<WebhookShellCommand> &vCommands) {
     for (int i = 0; i < vCommands.size(); i++) {
         m_vCommands.push_back(vCommands[i]);
     }
-    
 }
 
-const std::vector<std::string> &Webhook::getCommands() const {
+const std::vector<WebhookShellCommand> &Webhook::getCommands() const {
     return m_vCommands;
 }
 
@@ -137,12 +203,17 @@ bool WebhookHandlerConfig::applyConfig() {
                 _webhookConf.setTimeoutCommand(nTimeoutCommand);
             } else if (sWebhookParamName == "commands") {
                 WsjcppYamlNode *pCommands = pWebhookConf->getElement(sWebhookParamName);
-                std::vector<std::string> vCommands;
+                std::vector<WebhookShellCommand> vCommands;
                 int nLen = pCommands->getLength();
                 for (int i = 0; i < nLen; i++) {
                     std::string sCommand = pCommands->getElement(i)->getValue();
                     WsjcppLog::info(TAG, "Command = " + sCommand);
-                    vCommands.push_back(pCommands->getElement(i)->getValue());
+                    WebhookShellCommand shellCmd(sCommand);
+                    std::string sError;
+                    if (!shellCmd.isValid(sError)) {
+                        WsjcppLog::err(TAG, "Wrong value for 'command' '" + sCommand + "' \n   " + sError + "\n   " + sLogFormat);
+                    }
+                    vCommands.push_back(shellCmd);
                 }
                 _webhookConf.setCommands(vCommands);
             } else if (sWebhookParamName == "user") {

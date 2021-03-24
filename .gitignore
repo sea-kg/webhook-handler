@@ -5,6 +5,7 @@ tmp/*
 .wsjcpp/*
 data/logs/*.log
 .DS_Store
+data/test/some.txt
 
 # Prerequisites
 # *.d

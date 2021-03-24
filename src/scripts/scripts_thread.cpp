@@ -119,11 +119,11 @@ void ScriptsThread::run() {
 
         std::chrono::time_point<std::chrono::system_clock> start_all, end_all, start, end;
         start_all = std::chrono::system_clock::now();
-        std::vector<std::string> vCommands = webhook.getCommands();
+        std::vector<WebhookShellCommand> vCommands = webhook.getCommands();
         for (int i = 0; i < vCommands.size(); i++) {
             start = std::chrono::system_clock::now();
 
-            DoRunCommand process(webhook.getWorkDir(), vCommands[i]);
+            DoRunCommand process(webhook.getWorkDir(), vCommands[i].getArgs());
             process.start(webhook.getTimeoutCommand()*1000);
 
             if (process.isTimeout()) {

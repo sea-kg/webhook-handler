@@ -12,7 +12,7 @@ class DoRunCommand {
     public:
         DoRunCommand(
             const std::string &sDir,
-            const std::string &sCommand
+            const std::vector<std::string> &vArgs
         );
         void start(int nTimeoutMS);
         bool hasError();
@@ -20,15 +20,14 @@ class DoRunCommand {
         bool isTimeout();
         const std::string &outputString();
         void run();
-        static std::vector<std::string> parseCommands(const std::string& sCommands);
 
     private:
         std::string exec(const char* cmd);
         
         std::string TAG;
         std::string m_sDir;
+        std::vector<std::string> m_vArgs;
         std::string m_sCommand;
-        std::vector<std::string> m_vParsedCommand;
         int m_nTimeoutMS;
         pid_t m_nPid;
         pthread_t m_pProcessThread;

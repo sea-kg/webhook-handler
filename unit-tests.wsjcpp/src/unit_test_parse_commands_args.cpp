@@ -1,7 +1,7 @@
 
 #include <wsjcpp_core.h>
 #include <wsjcpp_unit_tests.h>
-#include <do_run_commands.h>
+#include "webhook_handler_config.h"
 
 // ---------------------------------------------------------------------
 // UnitTestParseCommandsArgs
@@ -46,12 +46,13 @@ void UnitTestParseCommandsArgs::executeTest() {
 
     for (int i = 0; i < vTests.size(); i++) {
         std::string sCommand = vTests[i].command;
+        WebhookShellCommand shellCommand(sCommand);
+
         std::vector<std::string> vExpectedArgs = vTests[i].expectedArgs;
-        std::vector<std::string> vGotArgs = DoRunCommands::parseCommands(sCommand);
-        compare("Args size for [" + sCommand + "]", vExpectedArgs.size(), vGotArgs.size());
-        if (vExpectedArgs.size() == vGotArgs.size()) {
-            for (int x = 0; x < vGotArgs.size(); x++) {
-                compare("arg", vExpectedArgs[x], vGotArgs[x]);
+        compare("Args size for [" + sCommand + "]", vExpectedArgs.size(), shellCommand.getArgs().size());
+        if (vExpectedArgs.size() == shellCommand.getArgs().size()) {
+            for (int x = 0; x < shellCommand.getArgs().size(); x++) {
+                compare("arg", vExpectedArgs[x], shellCommand.getArgs()[x]);
             }
         }
     }
