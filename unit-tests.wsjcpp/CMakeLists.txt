@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.0)
 
 project(unit-tests C CXX)
-add_definitions(-DWSJCPP_APP_VERSION="ut-v0.3.0")
+add_definitions(-DWSJCPP_APP_VERSION="ut-v0.3.1")
 add_definitions(-DWSJCPP_APP_NAME="unit-tests-webhook-handler")
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -55,7 +55,7 @@ list (APPEND WSJCPP_SOURCES "../src.wsjcpp/wsjcpp_yaml/wsjcpp_yaml.h")
 list (APPEND WSJCPP_INCLUDE_DIRS "../src.wsjcpp/HowardHinnant_date/")
 list (APPEND WSJCPP_SOURCES "../src.wsjcpp/HowardHinnant_date/date.h")
 
-# webhook-handler:v0.3.0
+# webhook-handler:v0.3.1
 list (APPEND WSJCPP_INCLUDE_DIRS "../src")
 list (APPEND WSJCPP_SOURCES "../src/scripts/do_run_command.h")
 list (APPEND WSJCPP_SOURCES "../src/scripts/do_run_command.cpp")

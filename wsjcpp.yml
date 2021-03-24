@@ -1,5 +1,5 @@
 name: "webhook-handler"
-version: v0.3.0
+version: v0.3.1
 cmake_minimum_required: "3.0"
 cmake_cxx_standard: "11"
 description: "Webhook Handler"
@@ -66,3 +66,8 @@ distribution:
   - source-file: "src/webhook_handler_config.h"
     target-file: "webhook_handler_config.h"
     type: "source-code"
+auto-generated-files:
+  version-file:
+    path: "./"
+    filename: "VERSION"
+    printed-format: "{MAJOR}.{MINOR}.{BUILD}"
