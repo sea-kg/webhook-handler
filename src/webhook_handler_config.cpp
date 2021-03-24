@@ -141,6 +141,10 @@ WebhookHandlerConfig::WebhookHandlerConfig(const std::string &sWorkspaceDir) {
     m_sIncomeWebhooksDir = "/var/lib/webhook-handler/income-webhooks/";
 }
 
+WebhookHandlerConfig::~WebhookHandlerConfig() {
+    delete m_pYamlConfig;
+}
+
 // ---------------------------------------------------------------------
 
 bool WebhookHandlerConfig::applyConfig() {

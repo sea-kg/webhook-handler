@@ -52,6 +52,7 @@ class Webhook {
 class WebhookHandlerConfig {
     public:
         WebhookHandlerConfig(const std::string &sWorkspaceDir);
+        ~WebhookHandlerConfig();
         bool applyConfig();
         int getServerPort();
         int getMaxDeque();
