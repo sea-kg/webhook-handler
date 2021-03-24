@@ -1,0 +1,13 @@
+Source: webhook-handler
+Section: devel
+Priority: optional
+Maintainer: Evgenii Sopov <mrseakg@gmail.com>
+Build-Depends: cmake, build-essential, pkg-config
+Homepage: https://github.com/sea-kg/webhook-handler
+
+Package: webhook-handler
+Architecture: any
+Depends: debconf (>= 0.2.1)
+Description: Inventory Files
+ Open-Source program for inventorization of files on your computer
+

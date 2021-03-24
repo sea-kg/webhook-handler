@@ -1,0 +1,34 @@
+#!/usr/bin/make -f		
+
+# secondly called by launchpad		
+build:
+	cmake .
+	make
+
+# thirdly called by launchpad		
+binary: binary-indep binary-arch	
+
+binary-indep:
+	# nothing to be done
+
+binary-arch:	
+	pwd
+	mkdir -p debian/tmp/usr/bin
+	cp -f webhook-handler debian/tmp/usr/bin/
+	cp -rf install-files/etc debian/tmp
+	mkdir -p debian/tmp/var/lib/webhook-handler/income-webhooks
+	mkdir -p debian/tmp/var/lib/webhook-handler/income-webhooks
+	mkdir -p debian/tmp/var/lib/webhook-handler/logs
+	mkdir debian/tmp/DEBIAN
+	dpkg-gencontrol -pwebhook-handler
+	dpkg --build debian/tmp ..
+
+# firstly called by launchpad		
+clean:
+	rm -f CMakeCache.txt
+	rm -rf CMakeFiles/
+	rm -f cmake_install.cmake
+	rm -f Makefile
+	rm -f webhook-handler
+
+.PHONY: binary binary-arch binary-indep clean
