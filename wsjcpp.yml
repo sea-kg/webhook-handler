@@ -4,12 +4,20 @@ cmake_minimum_required: "3.0"
 cmake_cxx_standard: "11"
 description: "Webhook Handler"
 
+auto-generated-files:
+  version-file:
+    path: "./"
+    filename: "VERSION"
+    printed-format: "{MAJOR}.{MINOR}.{BUILD}"
+
 authors:
   - name: "Evgenii Sopov"
     email: "mrseakg@gmail.com"
+
 origins:
   - address: "https://wsjcpp.org/wsjcpp-package-registry/"
     type: "package-registry"
+
 keywords:
   - "c++"
   - "webhook-handler"
@@ -47,6 +55,7 @@ dependencies:
     origin: "https://github.com/"
     installation-dir: "./src.wsjcpp/HowardHinnant_date"
     installation-datetime: "Mon, 01 Mar 2021 06:00:56 GMT"
+
 unit-tests:
   cases:
     - name: "GithubFilterRules"
@@ -55,6 +64,7 @@ unit-tests:
       description: ""
     - name: "DoRunCommand"
       description: ""
+
 distribution:
   - source-file: "src/scripts/do_run_command.h"
     target-file: "do_run_command.h"
@@ -68,8 +78,3 @@ distribution:
   - source-file: "src/webhook_handler_config.h"
     target-file: "webhook_handler_config.h"
     type: "source-code"
-auto-generated-files:
-  version-file:
-    path: "./"
-    filename: "VERSION"
-    printed-format: "{MAJOR}.{MINOR}.{BUILD}"
