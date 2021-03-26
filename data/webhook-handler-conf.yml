@@ -37,7 +37,7 @@ webhook-handlers:
     user: www-data
     timeout-command: 600
     commands:
-      - echo "123" >> "sample_test"
+      - echo "123"
       - python3 process_hook.py %WEBHOOK_DATA_FILE_PATH%
 
   github_test:
@@ -52,4 +52,4 @@ webhook-handlers:
       - pwd
       - ./some.sh
       - echo somesomesome
-      - echo 123 >> github_test
+      - echo 123

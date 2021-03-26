@@ -36,11 +36,8 @@ list (APPEND WSJCPP_SOURCES "src/scripts/do_run_command.cpp")
 list (APPEND WSJCPP_SOURCES "src/scripts/scripts_thread.h")
 list (APPEND WSJCPP_SOURCES "src/scripts/scripts_thread.cpp")
 
-# web-server
-list (APPEND WSJCPP_SOURCES "src/web-server/http_handler_webhooks.h")
-list (APPEND WSJCPP_SOURCES "src/web-server/http_handler_webhooks.cpp")
-
-# main
+list (APPEND WSJCPP_SOURCES "src/http_handler_webhooks.h")
+list (APPEND WSJCPP_SOURCES "src/http_handler_webhooks.cpp")
 list (APPEND WSJCPP_SOURCES "src/webhook_handler_config.h")
 list (APPEND WSJCPP_SOURCES "src/webhook_handler_config.cpp")
 list (APPEND WSJCPP_SOURCES "src/main.cpp")

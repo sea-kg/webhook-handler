@@ -39,7 +39,7 @@ bool HttpHandlerWebhooks::handle(const std::string &sWorkerId, WsjcppLightWebHtt
     WsjcppLightWebHttpResponse response(pRequest->getSockFd());
     std::string sPath = pRequest->getRequestPath();
     // WsjcppLog::info(_tag, pRequest->getRequestBody());
-    m_pDequeWebhooks->pushWebhookId(sPath, pRequest->getRequestBody());
+    m_pDequeWebhooks->pushWebhook(sPath, pRequest->getRequestBody());
     response.ok().sendText("OK");
     return true;
 }

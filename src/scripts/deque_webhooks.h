@@ -10,11 +10,38 @@
 #include <mutex>
 #include <deque>
 
+class WebhookRequest {
+    public:
+        WebhookRequest();
+        WebhookRequest(
+            const std::string &sIncomeWebhookDir,
+            const std::string &sWebhooksId,
+            const std::string &sPayloadContent
+        );
+
+        WebhookRequest(
+            const std::string &sIncomeWebhookDir,
+            const std::string &sFilename
+        );
+
+        std::string getId();
+
+        bool saveToFile();
+
+    private:
+        std::string TAG;
+        long m_nTimeRequest;
+        std::string m_sIncomeWebhookDir;
+        std::string m_sFilename;
+        std::string m_sWebhooksId;
+        std::string m_sPayloadContent;
+};
+
 class DequeWebhooks {
     public:
         DequeWebhooks(int nMaxDeque, const std::string &sIncomeWebhookDir);
-        std::string popWebhookId();
-        void pushWebhookId(
+        WebhookRequest popWebhook();
+        void pushWebhook(
             const std::string &sWebhooksId,
             const std::string &sPayloadContent
         );
@@ -25,7 +52,8 @@ class DequeWebhooks {
         int m_nMaxDeque;
 
         std::mutex m_mtxDeque;
-        std::deque<std::string> m_dequeWebhooksId;
+        std::deque<WebhookRequest> m_dequeWebhooks;
+        
         std::string m_sIncomeWebhookDir;
 };
 

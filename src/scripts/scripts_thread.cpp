@@ -52,68 +52,29 @@ void ScriptsThread::start() {
 
 // ---------------------------------------------------------------------
 
-int ScriptsThread::runScript(const std::string &sCommand) {
-
-    // Used code from here
-    // https://stackoverflow.com/questions/478898/how-to-execute-a-command-and-get-output-of-command-within-c-using-posix
-
-    std::string sShellCommand = " " + sCommand;
-
-    WsjcppLog::info(TAG, "Start script " + sShellCommand);
-
-    /*DoRunChecker process(m_serviceConf.scriptDir(), m_serviceConf.scriptPath());
-    process.start(m_serviceConf.scriptWaitInSec()*1000);
-
-    if (process.isTimeout()) {
-        return ScriptsThread::CHECKER_CODE_MUMBLE;
-    }
-
-    if (process.hasError()) {
-        WsjcppLog::err(TAG, "Checker is shit");
-        WsjcppLog::err(TAG, "Error on run script service: " + process.outputString());
-        return ScriptsThread::CHECKER_CODE_SHIT;
-    }
-
-    int nExitCode = process.exitCode();
-    if (nExitCode != ScriptsThread::CHECKER_CODE_UP 
-        && nExitCode != ScriptsThread::CHECKER_CODE_MUMBLE
-        && nExitCode != ScriptsThread::CHECKER_CODE_CORRUPT
-        && nExitCode != ScriptsThread::CHECKER_CODE_DOWN) {
-        Log::err(TAG, " Wrong checker exit code...\n"
-            "\n" + process.outputString());
-        return ScriptsThread::CHECKER_CODE_SHIT;
-    }
-    
-    return nExitCode;
-    */
-   return 0;
-}
-
-// ---------------------------------------------------------------------
-
 void ScriptsThread::run() {
     WsjcppLog::info(TAG, "Starting thread...");
     while(1) {
 
         std::this_thread::sleep_for(std::chrono::seconds(m_nWaitSecondsBetweenRunScripts));
-
-        std::string sWebhookId = m_pDequeWebhooks->popWebhookId();
-        if (sWebhookId == "") {
+        
+        WebhookRequest req = m_pDequeWebhooks->popWebhook();
+        if (req.getId() == "") {
             continue;
         }
 
-        WsjcppLog::info(TAG, "Start handling webhook " + sWebhookId);
+        WsjcppLog::info(TAG, "Start handling webhook " + req.getId());
         int nSize = m_pConfig->webhooksConf().size();
         Webhook webhook;
         bool bFound = false;
         for (int i = 0; i < nSize; i++) {
-            if (m_pConfig->webhooksConf()[i].getWebhookUrlPath() == sWebhookId) {
+            if (m_pConfig->webhooksConf()[i].getWebhookUrlPath() == req.getId()) {
                 bFound = true;
                 webhook = m_pConfig->webhooksConf()[i];
             };
         }
         if (!bFound) {
-            WsjcppLog::err(TAG, "Not found webhook " + sWebhookId);
+            WsjcppLog::err(TAG, "Not found webhook " + req.getId());
             continue;
         }
 
@@ -127,9 +88,9 @@ void ScriptsThread::run() {
             process.start(webhook.getTimeoutCommand()*1000);
 
             if (process.isTimeout()) {
-                WsjcppLog::err(TAG, "Comamnd finished by timeout " + sWebhookId);
+                WsjcppLog::err(TAG, "Comamnd finished by timeout " + req.getId());
                 WsjcppLog::err(TAG, process.outputString());
-                continue;
+                break;
             }
 
             if (process.hasError()) {
@@ -148,8 +109,8 @@ void ScriptsThread::run() {
                 WsjcppLog::info(TAG, "Output:\n" + process.outputString());
                 WsjcppLog::ok(TAG, "Command done.");
             }
+            // WsjcppLog
             end = std::chrono::system_clock::now();
-
             int elapsed_milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count();
             WsjcppLog::info(TAG, "Elapsed milliseconds: " + std::to_string(elapsed_milliseconds) + "ms");
         }

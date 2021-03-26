@@ -17,8 +17,6 @@ class ScriptsThread {
         int m_nWaitSecondsBetweenRunScripts;
         DequeWebhooks *m_pDequeWebhooks;
         int m_nNumber;
-
-        int runScript(const std::string &sCommand);
 };
 
 #endif // SCRIPTS_THREAD_H

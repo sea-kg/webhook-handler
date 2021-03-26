@@ -53,6 +53,8 @@ unit-tests:
       description: ""
     - name: "ParseCommandsArgs"
       description: ""
+    - name: "DoRunCommand"
+      description: ""
 distribution:
   - source-file: "src/scripts/do_run_command.h"
     target-file: "do_run_command.h"
