@@ -35,15 +35,19 @@ class Webhook {
         void setTimeoutCommand(int nSec);
         int getTimeoutCommand() const;
 
-        void setUser(const std::string &sUser);
-        std::string getUser();
+        void setUserId(int nUserId);
+        int getUserId();
+        
+        void setGroupId(int nGroupId);
+        int getGroupId();
 
     private:
         int m_nScriptWaitInSec;
         std::string m_sID;
         std::string m_sWebhookUrlPath;
         std::string m_sWorkDir;
-        std::string m_sUser;
+        int m_nUserId;
+        int m_nGroupId;
         std::vector<WebhookShellCommand> m_vCommands;
 };
 

@@ -21,17 +21,21 @@
 #include <iostream>
 #include <cstring>
 #include <fcntl.h>
-
+#include <errno.h>
 // ----------------------------------------------------------------------
 // DoRunCommand
 
 DoRunCommand::DoRunCommand(
     const std::string &sDir,
-    const std::vector<std::string> &vArgs
+    const std::vector<std::string> &vArgs,
+    int nUserId,
+    int nGroupId
 ) {
     TAG = "DoRunCommand";
     m_sDir = sDir;
     m_vArgs = vArgs;
+    m_nUserId = nUserId;
+    m_nGroupId = nGroupId;
     m_sCommand = WsjcppCore::join(vArgs, " ");
     // TODO will be not work some 'cd ..'
 }
@@ -142,18 +146,38 @@ void DoRunCommand::run() {
         // child process
         if (dup2(fd[1], STDOUT_FILENO) < 0) { // redirect from pipe to stdout
             perror("dup2");
-            return;
+            exit(-1);
         }
         if (dup2(STDOUT_FILENO, STDERR_FILENO) < 0) { // redirects stderr to stdout below this line.
             perror("dup2");
-            return;
+            exit(-1);
         }
         close(fd[0]);
         close(fd[1]);
         printf("fork: Child process id=%d\n", getpid());
         printf("fork: Change dir '%s'\n", m_sDir.c_str());
-
         chdir(m_sDir.c_str());
+
+        printf("fork: current groupid '%d'\n", getgid());
+        if (getgid() != m_nGroupId) {
+            printf("fork: Switch to groupid '%d'\n", m_nGroupId);
+            if (setgid(m_nGroupId) != 0) {
+                perror("Could not change run as user (setgid)\n");
+                exit(-1);
+            }
+        }
+        
+        printf("fork: current userid '%d'\n", getuid());
+        if (getuid() != m_nUserId) {
+            printf("fork: Switch to userid '%d'\n", m_nUserId);
+            if (setuid(m_nUserId) != 0) {
+                perror("Could not change run as user (setuid)\n");
+                exit(-1);
+            }
+        }
+        
+        
+
         // setpgid(nChildPid, nChildPid); //Needed so negative PIDs can kill children of /bin/sh
 
         char **pArgs = new char * [nSize + 1];

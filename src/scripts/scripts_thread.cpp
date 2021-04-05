@@ -81,10 +81,13 @@ void ScriptsThread::run() {
         std::chrono::time_point<std::chrono::system_clock> start_all, end_all, start, end;
         start_all = std::chrono::system_clock::now();
         std::vector<WebhookShellCommand> vCommands = webhook.getCommands();
+        std::string sWorkDir = webhook.getWorkDir();
+        int nUserId = webhook.getUserId();
+        int nGroupId = webhook.getUserId();
         for (int i = 0; i < vCommands.size(); i++) {
             start = std::chrono::system_clock::now();
 
-            DoRunCommand process(webhook.getWorkDir(), vCommands[i].getArgs());
+            DoRunCommand process(sWorkDir, vCommands[i].getArgs(), nUserId, nGroupId);
             process.start(webhook.getTimeoutCommand()*1000);
 
             if (process.isTimeout()) {

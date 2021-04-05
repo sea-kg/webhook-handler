@@ -35,6 +35,7 @@ webhook-handlers:
     webhook-url-path: "/wh/sample_test"
     workdir: "./test"
     user: www-data
+    group: www-data
     timeout-command: 600
     commands:
       - echo "123"
@@ -50,6 +51,7 @@ webhook-handlers:
     workdir: "./test"
     commands:
       - pwd
+      - whoami
       - ./some.sh
       - echo somesomesome
       - echo 123

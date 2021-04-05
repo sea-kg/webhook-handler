@@ -6,6 +6,8 @@
 #include <iostream>
 #include <sstream>
 #include <wsjcpp_core.h>
+#include <pwd.h>
+#include <grp.h>
 
 // WebhookShellCommand
 WebhookShellCommand::WebhookShellCommand(std::string sCommand) {
@@ -76,6 +78,8 @@ void WebhookShellCommand::parseCommand() {
 
 Webhook::Webhook(){
     m_nScriptWaitInSec = 10;
+    m_nUserId = 0; // root
+    m_nGroupId = 0; // root
 }
 
 void Webhook::setWebhookUrlPath(const std::string &sWebhookUrlPath) {
@@ -106,7 +110,7 @@ const std::vector<WebhookShellCommand> &Webhook::getCommands() const {
 
 void Webhook::setTimeoutCommand(int nSec){
     m_nScriptWaitInSec = nSec;
-    if(m_nScriptWaitInSec < 1){
+    if (m_nScriptWaitInSec < 1) {
         m_nScriptWaitInSec = 10;
     }
 }
@@ -115,12 +119,20 @@ int Webhook::getTimeoutCommand() const {
     return m_nScriptWaitInSec;
 }
 
-void Webhook::setUser(const std::string &sUser) {
-    m_sUser = sUser;
+void Webhook::setUserId(int nUserId) {
+    m_nUserId = nUserId;
 }
 
-std::string Webhook::getUser() {
-    return m_sUser;
+int Webhook::getUserId() {
+    return m_nUserId;
+}
+
+void Webhook::setGroupId(int nGroupId) {
+    m_nGroupId = nGroupId;
+}
+
+int Webhook::getGroupId() {
+    return m_nGroupId;
 }
 
 // ----------------------------------------------------------------------
@@ -222,8 +234,22 @@ bool WebhookHandlerConfig::applyConfig() {
                 _webhookConf.setCommands(vCommands);
             } else if (sWebhookParamName == "user") {
                 std::string sUser = pWebhookConf->getElement(sWebhookParamName)->getValue();
-                // TODO check user in system
-                _webhookConf.setUser(sUser);
+                struct passwd *pwd = getpwnam(sUser.c_str()); /* don't free, see getpwnam() for details */
+                if (pwd == NULL) {
+                    WsjcppLog::err(TAG, "Don't found userid by username '" + sUser + "' \n " + sLogFormat);
+                    return false;
+                } else {
+                    _webhookConf.setUserId(pwd->pw_uid);
+                    WsjcppLog::info(TAG, "Found userid uid=" + std::to_string(pwd->pw_uid) + " for '" + sUser + "'");
+                }
+            } else if (sWebhookParamName == "group") {
+                std::string sGroup = pWebhookConf->getElement(sWebhookParamName)->getValue();
+                struct group *gr = getgrnam(sGroup.c_str()); 
+                if (gr == NULL) {
+                    WsjcppLog::err(TAG, "Don't found groupid by groupname '" + sGroup + "'\n " + sLogFormat);
+                    return false;
+                }
+                _webhookConf.setGroupId(gr->gr_gid);
             } else {
                 WsjcppLog::warn(TAG, "Unknown key: '" + sWebhookParamName + "'" + sLogFormat);
             }

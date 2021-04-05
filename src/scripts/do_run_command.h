@@ -12,7 +12,9 @@ class DoRunCommand {
     public:
         DoRunCommand(
             const std::string &sDir,
-            const std::vector<std::string> &vArgs
+            const std::vector<std::string> &vArgs,
+            int nUserId,
+            int nGroupId
         );
         void start(int nTimeoutMS);
         bool hasError();
@@ -29,6 +31,8 @@ class DoRunCommand {
         std::vector<std::string> m_vArgs;
         std::string m_sCommand;
         int m_nTimeoutMS;
+        int m_nUserId;
+        int m_nGroupId;
         pid_t m_nPid;
         pthread_t m_pProcessThread;
         int m_nExitCode;

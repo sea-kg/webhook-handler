@@ -2,6 +2,7 @@
 
 echo "Print 1234 to some.txt"
 echo "1234" >> some.txt
+whoami >> /var/www/html/some.txt
 
 echo "5 sec"
 sleep 1
