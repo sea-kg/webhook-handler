@@ -1,13 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import fileinput
 import re
-import subprocess
 import os
 import sys
 import shutil
-from pprint import pprint
 import datetime
 
 print ("Welcome to preapre ppa package...")
