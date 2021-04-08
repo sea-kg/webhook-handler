@@ -60,6 +60,7 @@ void ScriptsThread::run() {
         
         WebhookRequest req = m_pDequeWebhooks->popWebhook();
         if (req.getId() == "") {
+            m_pDequeWebhooks->removeProcessingWebhook();
             continue;
         }
 
@@ -75,6 +76,7 @@ void ScriptsThread::run() {
         }
         if (!bFound) {
             WsjcppLog::err(TAG, "Not found webhook " + req.getId());
+            m_pDequeWebhooks->removeProcessingWebhook();
             continue;
         }
 
@@ -120,5 +122,6 @@ void ScriptsThread::run() {
         end_all = std::chrono::system_clock::now();
         int elapsed_milliseconds2 = std::chrono::duration_cast<std::chrono::milliseconds>(end_all - start_all).count();
         WsjcppLog::info(TAG, "Elapsed for all milliseconds: " + std::to_string(elapsed_milliseconds2) + "ms");
+        m_pDequeWebhooks->removeProcessingWebhook();
     }
 }

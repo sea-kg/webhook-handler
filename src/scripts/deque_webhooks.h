@@ -27,6 +27,7 @@ class WebhookRequest {
         std::string getId();
 
         bool saveToFile();
+        std::string getFilename();
 
     private:
         std::string TAG;
@@ -46,6 +47,7 @@ class DequeWebhooks {
             const std::string &sPayloadContent
         );
         void cleanup();
+        void removeProcessingWebhook();
 
     private:
         std::string TAG;
@@ -55,6 +57,7 @@ class DequeWebhooks {
         std::deque<WebhookRequest> m_dequeWebhooks;
         
         std::string m_sIncomeWebhookDir;
+        std::string m_sFilenameProcessing;
 };
 
 #endif // DEQUE_WEBHOOKS_H

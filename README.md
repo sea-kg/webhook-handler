@@ -57,7 +57,7 @@ Build
 $ ./clean.sh && ./build_simple.sh
 ```
 
-## Run
+Run
 
 ```
 ./webhook-handler --dir ./data start

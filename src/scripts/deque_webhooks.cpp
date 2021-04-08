@@ -9,6 +9,7 @@
 #include <regex>        // regex, sregex_token_iterator
 #include <stdio.h>
 #include <math.h>
+#include <iomanip>
 #include <json.hpp>
 
 // ----------------------------------------------------------------------
@@ -59,8 +60,12 @@ bool WebhookRequest::saveToFile() {
         return false;
     }
     std::ofstream fileOutput(sFilenameReq);
-    fileOutput << jsonWebhookInfo;
+    fileOutput << std::setw(4) << jsonWebhookInfo << std::endl;
     return true;
+}
+
+std::string WebhookRequest::getFilename() {
+    return m_sFilename;
 }
 
 // ----------------------------------------------------------------------
@@ -69,6 +74,7 @@ bool WebhookRequest::saveToFile() {
 DequeWebhooks::DequeWebhooks(int nMaxDeque, const std::string &sIncomeWebhookDir) {
     m_nMaxDeque = nMaxDeque;
     m_sIncomeWebhookDir = sIncomeWebhookDir;
+    m_sFilenameProcessing = m_sIncomeWebhookDir + "/_processing_webhook";
 }
 
 WebhookRequest DequeWebhooks::popWebhook() {
@@ -78,6 +84,16 @@ WebhookRequest DequeWebhooks::popWebhook() {
     if (nSize > 0) {
         req = m_dequeWebhooks.back();
         m_dequeWebhooks.pop_back();
+        std::string sFilenameReq = m_sIncomeWebhookDir + "/" + req.getFilename();
+        if (!WsjcppCore::fileExists(sFilenameReq)) {
+            WsjcppLog::throw_err(TAG, "File not found '" + sFilenameReq + "'");
+        }
+        if (rename(sFilenameReq.c_str(), m_sFilenameProcessing.c_str()) != 0) {
+            WsjcppLog::throw_err(TAG, "Error renaming '" + sFilenameReq + "' -> '" + m_sFilenameProcessing + "'");
+        } else {
+            WsjcppLog::info(TAG, "File renamed successfully '" + sFilenameReq + "' -> '" + m_sFilenameProcessing + "'");
+        }
+        // TODO move webhook to processing
     }
     return req;
 }
@@ -113,6 +129,12 @@ void DequeWebhooks::cleanup(){
     while (m_dequeWebhooks.size() > 0) {
         m_dequeWebhooks.pop_back();
     }
+}
+
+// ----------------------------------------------------------------------
+
+void DequeWebhooks::removeProcessingWebhook() {
+    // TODO remove processing webhook
 }
 
 // ----------------------------------------------------------------------

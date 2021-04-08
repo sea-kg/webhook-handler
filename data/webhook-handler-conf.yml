@@ -8,6 +8,7 @@ server:
   status-page-url-path: "/wh/status"
   log-dir: "./logs"
   income-webhooks-dir: "./income-webhooks"
+  keep-processed-webhooks: yes
 
 webhook-handlers:
   docker_compose_example_restart:
